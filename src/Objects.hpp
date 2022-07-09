@@ -16,7 +16,7 @@ public:
 	{
 		this->selected = false;
 		this->wall = sf::RectangleShape(sf::Vector2f(100, 20));
-		this->wall.setFillColor(sf::Color::Magenta);
+		this->wall.setFillColor(sf::Color::White);
 	}
 
 	sf::RectangleShape* getWall()

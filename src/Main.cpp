@@ -16,14 +16,9 @@ int main()
 	window.create(sf::VideoMode(700.0f * screenScalingFactor, 700.0f * screenScalingFactor), "SFML works!", sf::Style::Close);
 	platform.setIcon(window.getSystemHandle());
 
-	sf::CircleShape shape(window.getSize().x / 5);
-	shape.setFillColor(sf::Color::White);
-
 	sf::Texture shapeTexture;
 	sf::Texture defaultObject;
-	defaultObject.loadFromFile("content/defaultObject.png");
-	shapeTexture.loadFromFile("content/sfml.png");
-	shape.setTexture(&shapeTexture);
+	defaultObject.loadFromFile("content/Wall.png");
 
 	sf::Event event;
 	sf::Mouse mouse;
@@ -65,10 +60,13 @@ int main()
 					std::cout << "selected at: "
 							  << "(" << mousePos.x << "," << mousePos.y << ")" << std::endl;
 				}
-				Selected->move(&mousePos, &relativeMousePos);
 				lastClick = true;
 			}
+			else
+				Selected = nullptr;
 		}
+		if (Selected != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
+			Selected->move(&mousePos, &relativeMousePos);
 		if (lastClick && !mouse.isButtonPressed(sf::Mouse::Left)) //if mouse was just released
 			lastClick = false;
 
