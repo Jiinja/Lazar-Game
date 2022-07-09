@@ -17,6 +17,7 @@ public:
 		this->selected = false;
 		this->wall = sf::RectangleShape(sf::Vector2f(100, 20));
 		this->wall.setFillColor(sf::Color::White);
+		this->wall.setOutlineColor(sf::Color::Red);
 	}
 
 	sf::RectangleShape* getWall()
@@ -78,6 +79,21 @@ public:
 	 * calculates the angle/slope of the wall so that it can be used for reflections
 	 */
 	void updateReflection();
+
+	/**
+	 * This function changes the selection status
+	 */
+	void select()
+	{
+		this->wall.setOutlineThickness(2);
+		this->selected = true;
+	}
+
+	void deselect()
+	{
+		this->wall.setOutlineThickness(0);
+		this->selected = false;
+	}
 
 private:
 	bool selected;				 //this is updated whenever the object is selected or deselected

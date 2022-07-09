@@ -26,7 +26,7 @@ int main()
 	sf::Vector2i lastMouse;		   //last frame mouse pos
 	sf::Vector2i relativeMousePos; //mouse pos relative to origin of selected object
 
-	bool lastClick = false; //tells whether the mouse1 was pressed on the previous frame
+	bool lastFrameClick = false; //tells whether the mouse1 was pressed on the previous frame
 
 	//1 wall pointer calculated every frame - pointing to the wall the the mouse is over
 	//1 wall pointer calculated every click - pointing to the wall that is selected
@@ -36,7 +36,7 @@ int main()
 	firstWall.getWall()->setTexture(&defaultObject);
 
 	//Object::Wall* mouseOver = &firstWall; //object directly under the mouse
-	Object::Wall* Selected = &firstWall; //object clicked on - NOTE: Wall selected = true AFTER a full click & release
+	Object::Wall* Selected = nullptr; //object clicked on - NOTE: Wall selected = true AFTER a full click & release
 
 	while (window.isOpen())
 	{
@@ -47,28 +47,38 @@ int main()
 		}
 		lastMouse = mousePos;
 		mousePos = mouse.getPosition(window);
-		if (firstWall.getWall()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
+
+		//if user just clicked
+		if (!lastFrameClick && mouse.isButtonPressed(sf::Mouse::Left))
 		{
-			//mouseOver = &firstWall;
-			if (mouse.isButtonPressed(sf::Mouse::Left) /*&& mouse is not over a movement object */)
+			//if mouse is over the wall
+			if (firstWall.getWall()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
 			{
-				std::cout << "Wall is clicked on" << std::endl;
 				Selected = &firstWall;
-				if (lastClick == false) //if first frame of click, save mouse position relative to selected object
-				{
-					relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - firstWall.getWall()->getPosition().x, mouse.getPosition(window).y - firstWall.getWall()->getPosition().y);
-					std::cout << "selected at: "
-							  << "(" << mousePos.x << "," << mousePos.y << ")" << std::endl;
-				}
-				lastClick = true;
+				Selected->select();
+				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - firstWall.getWall()->getPosition().x, mouse.getPosition(window).y - firstWall.getWall()->getPosition().y);
+				lastFrameClick = true;
 			}
+			//if mouse is over nothing
 			else
-				Selected = nullptr;
+			{
+				if (Selected != nullptr)
+				{
+					Selected->deselect();
+					Selected = nullptr;
+				}
+				lastFrameClick = true;
+			}
 		}
+
 		if (Selected != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
+		{
 			Selected->move(&mousePos, &relativeMousePos);
-		if (lastClick && !mouse.isButtonPressed(sf::Mouse::Left)) //if mouse was just released
-			lastClick = false;
+		}
+		if (lastFrameClick && !mouse.isButtonPressed(sf::Mouse::Left)) //if mouse was just released
+		{
+			lastFrameClick = false;
+		}
 
 		window.clear();
 		firstWall.draw(&window);
