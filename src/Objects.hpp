@@ -1,3 +1,7 @@
+#include "math.h"
+
+#define PI 3.14159265
+
 namespace Object
 {
 
@@ -18,6 +22,14 @@ public:
 		this->wall = sf::RectangleShape(sf::Vector2f(100, 20));
 		this->wall.setFillColor(sf::Color::White);
 		this->wall.setOutlineColor(sf::Color::Red);
+		this->wall.setOrigin(50, 10);
+		this->stretch1 = this->stretch2 = this->rotate = sf::CircleShape(10);
+		this->stretch1.setOrigin(10, 10);
+		this->stretch2.setOrigin(10, 10);
+		this->rotate.setOrigin(10, 10);
+		this->stretch1.setFillColor(sf::Color::White);
+		this->stretch2.setFillColor(sf::Color::White);
+		this->rotate.setFillColor(sf::Color::Red);
 	}
 
 	sf::RectangleShape* getWall()
@@ -25,30 +37,42 @@ public:
 		return &this->wall;
 	}
 
-	sf::RectangleShape* getRotater()
+	sf::CircleShape* getRotater()
 	{
 		return &this->rotate;
 	}
 
-	sf::RectangleShape* getStretch1()
+	sf::CircleShape* getStretch1()
 	{
 		return &this->stretch1;
 	}
 
-	sf::RectangleShape* getStretch2()
+	sf::CircleShape* getStretch2()
 	{
 		return &this->stretch2;
 	}
 
 	/**
 	 * This function takes in the window and draws the wall
-	 * if the wall is selected, draw movement objects
+	 * if the wall is selected, draw movement objects that scale to object size
 	 */
 	void draw(sf::RenderWindow* window)
 	{
+		this->wall.setRotation(this->wall.getRotation() + 0.01);
+		/**
+		 * stretchers need to be 1/2 of x size distance from the center, rotated
+		 * rotator needs to be 40 pixels from center also rotated
+		 */
+
 		window->draw(wall);
 		if (selected)
 		{
+			this->stretch1.setRotation(this->wall.getRotation());
+			this->stretch2.setRotation(this->wall.getRotation() + 180);
+			this->stretch2.setRotation(this->wall.getRotation() + 90);
+			this->stretch1.setPosition(this->wall.getPosition().x + (((this->wall.getSize().x / 2) + 20) * cos(this->wall.getRotation() * PI / 180)), this->wall.getPosition().y + (((this->wall.getSize().x / 2) + 20) * sin(this->wall.getRotation() * PI / 180)));
+			this->stretch2.setPosition(this->wall.getPosition().x - (((this->wall.getSize().x / 2) + 20) * cos(this->wall.getRotation() * PI / 180)), this->wall.getPosition().y - (((this->wall.getSize().x / 2) + 20) * sin(this->wall.getRotation() * PI / 180)));
+			this->rotate.setPosition(this->wall.getPosition().x + this->wall.getSize().x / 2 * sin((this->wall.getRotation() * PI / 180)), this->wall.getPosition().y - this->wall.getSize().x / 2 * cos((this->wall.getRotation() * PI / 180)));
 			window->draw(rotate);
 			window->draw(stretch1);
 			window->draw(stretch2);
@@ -96,11 +120,11 @@ public:
 	}
 
 private:
-	bool selected;				 //this is updated whenever the object is selected or deselected
-	sf::RectangleShape wall;	 //main wall object
-	sf::RectangleShape rotate;	 //rotation object
-	sf::RectangleShape stretch1; //increase length object 1 side
-	sf::RectangleShape stretch2; //increase length object other side
+	bool selected;			  //this is updated whenever the object is selected or deselected
+	sf::RectangleShape wall;  //main wall object
+	sf::CircleShape rotate;	  //rotation object
+	sf::CircleShape stretch1; //increase length object 1 side
+	sf::CircleShape stretch2; //increase length object other side
 };
 
 }
