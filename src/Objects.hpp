@@ -58,7 +58,7 @@ public:
 	 */
 	void draw(sf::RenderWindow* window)
 	{
-		this->wall.setRotation(this->wall.getRotation() + 0.01);
+		//this->wall.setRotation(this->wall.getRotation() + 0.01);
 		/**
 		 * stretchers need to be 1/2 of x size distance from the center, rotated
 		 * rotator needs to be 40 pixels from center also rotated
@@ -86,7 +86,32 @@ public:
 	 */
 	void move(sf::Vector2i* mouse, sf::Vector2i* offset)
 	{
-		this->wall.setPosition(mouse->x - offset->x, mouse->y - offset->y);
+		//normal selection -> move object around
+		if (this->selected == 1)
+		{
+			this->wall.setPosition(mouse->x - offset->x, mouse->y - offset->y);
+		}
+		//stretch1 selection -> increase length and adjust origin
+		else if (this->selected == 2)
+		{
+			//use rotation and trig to calculate amount of y/x axis shift.
+		}
+		//stretch2 selection -> opposite of stretch1
+		else if (this->selected == 3)
+		{
+		}
+		//rotater selection -> rotate object based on mouse position
+		else if (this->selected == 4)
+		{
+			float newRotation = atan((this->wall.getPosition().y - mouse->y) / (this->wall.getPosition().x - mouse->x)) / PI * 180 - 90;
+			if ((this->wall.getPosition().x - mouse->x) < 0)
+				newRotation += 180;
+			if (newRotation > 360)
+				newRotation -= 360;
+			if (newRotation < 0)
+				newRotation += 360;
+			this->wall.setRotation(newRotation);
+		}
 	}
 
 	/**
@@ -110,17 +135,32 @@ public:
 	void select()
 	{
 		this->wall.setOutlineThickness(2);
-		this->selected = true;
+		this->selected = 1;
 	}
 
 	void deselect()
 	{
 		this->wall.setOutlineThickness(0);
-		this->selected = false;
+		this->selected = 0;
+	}
+
+	void selectStretch1()
+	{
+		this->selected = 2;
+	}
+
+	void selectStretch2()
+	{
+		this->selected = 3;
+	}
+
+	void selectRotater()
+	{
+		this->selected = 4;
 	}
 
 private:
-	bool selected;			  //this is updated whenever the object is selected or deselected
+	int selected;			  //this is updated whenever the object is selected or deselected  0 = no, 1 = selected, 2 = stretch1, 3 = stretch2, 4 = rotater
 	sf::RectangleShape wall;  //main wall object
 	sf::CircleShape rotate;	  //rotation object
 	sf::CircleShape stretch1; //increase length object 1 side

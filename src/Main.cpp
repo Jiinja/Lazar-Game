@@ -36,7 +36,7 @@ int main()
 	firstWall.getWall()->setTexture(&defaultObject);
 
 	//Object::Wall* mouseOver = &firstWall; //object directly under the mouse
-	Object::Wall* Selected = nullptr; //object clicked on - NOTE: Wall selected = true AFTER a full click & release
+	Object::Wall* selectedObject = nullptr; //object clicked on - NOTE: Wall selected = true AFTER a full click & release
 
 	while (window.isOpen())
 	{
@@ -51,29 +51,46 @@ int main()
 		//if user just clicked
 		if (!lastFrameClick && mouse.isButtonPressed(sf::Mouse::Left))
 		{
-			//if mouse is over the wall
-			if (firstWall.getWall()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
+			//if mouse is over stretch1 of selected object
+			if (selectedObject != nullptr && selectedObject->getStretch1()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
 			{
-				Selected = &firstWall;
-				Selected->select();
+				selectedObject->selectStretch1();
+				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getStretch1()->getPosition().x, mouse.getPosition(window).y - selectedObject->getStretch1()->getPosition().y);
+			}
+			//if mouse is over stretch2 of selected object
+			else if (selectedObject != nullptr && selectedObject->getStretch2()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
+			{
+				selectedObject->selectStretch2();
+				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getStretch2()->getPosition().x, mouse.getPosition(window).y - selectedObject->getStretch2()->getPosition().y);
+			}
+			//if mouse is over rotater of selected object
+			else if (selectedObject != nullptr && selectedObject->getRotater()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
+			{
+				selectedObject->selectRotater();
+				//relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getRotater()->getPosition().x, mouse.getPosition(window).y - selectedObject->getRotater()->getPosition().y);
+			}
+			//if mouse is over the wall - will iterate through a list/vector of walls later
+			else if (firstWall.getWall()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
+			{
+				selectedObject = &firstWall;
+				selectedObject->select();
 				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - firstWall.getWall()->getPosition().x, mouse.getPosition(window).y - firstWall.getWall()->getPosition().y);
-				lastFrameClick = true;
 			}
 			//if mouse is over nothing
 			else
 			{
-				if (Selected != nullptr)
+				if (selectedObject != nullptr)
 				{
-					Selected->deselect();
-					Selected = nullptr;
+					selectedObject->deselect();
+					selectedObject = nullptr;
 				}
-				lastFrameClick = true;
 			}
+			lastFrameClick = true;
 		}
 
-		if (Selected != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
+		if (selectedObject != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
 		{
-			Selected->move(&mousePos, &relativeMousePos);
+			selectedObject->move(&mousePos, &relativeMousePos);
 		}
 		if (lastFrameClick && !mouse.isButtonPressed(sf::Mouse::Left)) //if mouse was just released
 		{

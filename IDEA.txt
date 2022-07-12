@@ -1,16 +1,16 @@
 Light game
 
-Editor mode 
+Editor mode
  - Walls you can change length and rotation
  - Mediums you can pick the refraction n
  - 1 lazer you can place anywhere
  - targets you can change lenght and rotation
 
-Play mode 
+Play mode
  - Map locked in place
  - You can rotate lazer by clicking and dragging the mouse
  - Displays angle of lazer
- - Turn on/off lazer, animated 
+ - Turn on/off lazer, animated
  - sidebar turns into key showing walls, target, mediums, and refraction n's
 
 
@@ -24,7 +24,7 @@ Organization
 
 Order of Operations
  - Create linked list
- - Create walls
+ - Create walls -> fix collision mapping with mouse pointer
  - Add ability to have multiple walls with proper selection using linked list
  - Add target object extending wall
  - Add lazer pointer object with fixed size
