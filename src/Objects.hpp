@@ -86,6 +86,7 @@ public:
 	 */
 	void move(sf::Vector2i* mouse, sf::Vector2i* offset)
 	{
+		std::cout << "MOVE: mouse.x = " << mouse->x << "  mouse.y = " << mouse->y << "   offset.x = " << offset->x << "  offset.y = " << offset->y << std::endl;
 		//normal selection -> move object around
 		if (this->selected == 1)
 		{
@@ -95,6 +96,21 @@ public:
 		else if (this->selected == 2)
 		{
 			//use rotation and trig to calculate amount of y/x axis shift.
+			sf::Vector2i distance = sf::Vector2i(mouse->x - offset->x - this->stretch1.getPosition().x, mouse->y - offset->y - this->stretch1.getPosition().y);
+			std::cout << "distance.x = " << distance.x << "  distance.y = " << distance.y << std::endl;
+			//finding size difference
+			float sizeChange = distance.x / cos(this->wall.getRotation() * PI / 180);
+			if (distance.y / cos(this->wall.getRotation() * PI / 180) < sizeChange)
+			{
+				sizeChange = distance.y / cos(this->wall.getRotation() * PI / 180);
+			}
+			//new size = old + change
+			this->wall.setSize(sf::Vector2f(this->wall.getSize().x + sizeChange, 20));
+			if (this->wall.getSize().x < 20)
+			{
+				this->wall.setSize(sf::Vector2f(20, 20));
+			}
+			this->wall.setOrigin(sf::Vector2f(this->wall.getSize().x / 2, 10));
 		}
 		//stretch2 selection -> opposite of stretch1
 		else if (this->selected == 3)

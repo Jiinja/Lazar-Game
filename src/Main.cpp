@@ -54,6 +54,8 @@ int main()
 			//if mouse is over stretch1 of selected object
 			if (selectedObject != nullptr && selectedObject->getStretch1()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
 			{
+				std::cout << "stretch1 x = " << selectedObject->getStretch1()->getPosition().x << "  y = " << selectedObject->getStretch1()->getPosition().y << std::endl;
+				std::cout << "mouse x = " << mouse.getPosition(window).x << "  y = " << mouse.getPosition(window).y << std::endl;
 				selectedObject->selectStretch1();
 				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getStretch1()->getPosition().x, mouse.getPosition(window).y - selectedObject->getStretch1()->getPosition().y);
 			}
@@ -74,7 +76,7 @@ int main()
 			{
 				selectedObject = &firstWall;
 				selectedObject->select();
-				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - firstWall.getWall()->getPosition().x, mouse.getPosition(window).y - firstWall.getWall()->getPosition().y);
+				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getWall()->getPosition().x, mouse.getPosition(window).y - selectedObject->getWall()->getPosition().y);
 			}
 			//if mouse is over nothing
 			else
