@@ -51,25 +51,11 @@ int main()
 		//if user just clicked
 		if (!lastFrameClick && mouse.isButtonPressed(sf::Mouse::Left))
 		{
-			//if mouse is over stretch1 of selected object
-			if (selectedObject != nullptr && selectedObject->getStretch1()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
-			{
-				std::cout << "stretch1 x = " << selectedObject->getStretch1()->getPosition().x << "  y = " << selectedObject->getStretch1()->getPosition().y << std::endl;
-				std::cout << "mouse x = " << mouse.getPosition(window).x << "  y = " << mouse.getPosition(window).y << std::endl;
-				selectedObject->selectStretch1();
-				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getStretch1()->getPosition().x, mouse.getPosition(window).y - selectedObject->getStretch1()->getPosition().y);
-			}
-			//if mouse is over stretch2 of selected object
-			else if (selectedObject != nullptr && selectedObject->getStretch2()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
-			{
-				selectedObject->selectStretch2();
-				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getStretch2()->getPosition().x, mouse.getPosition(window).y - selectedObject->getStretch2()->getPosition().y);
-			}
 			//if mouse is over rotater of selected object
-			else if (selectedObject != nullptr && selectedObject->getRotater()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
+			if (selectedObject != nullptr && selectedObject->getTransformer()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
 			{
-				selectedObject->selectRotater();
-				//relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getRotater()->getPosition().x, mouse.getPosition(window).y - selectedObject->getRotater()->getPosition().y);
+				selectedObject->selectTransformer();
+				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getTransformer()->getPosition().x, mouse.getPosition(window).y - selectedObject->getTransformer()->getPosition().y);
 			}
 			//if mouse is over the wall - will iterate through a list/vector of walls later
 			else if (firstWall.getWall()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
