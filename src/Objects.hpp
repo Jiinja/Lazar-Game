@@ -116,10 +116,35 @@ public:
 		this->selected = 2;
 	}
 
+	//not working correctly almost tho.
+	sf::ConvexShape getConvexShape()
+	{
+		sf::ConvexShape result;
+		result.setPointCount(4);
+		sf::Transform matrix = this->wall.getTransform();
+		result.setPoint(0, matrix.transformPoint(this->wall.getPoint(0)));
+		result.setPoint(1, matrix.transformPoint(this->wall.getPoint(1)));
+		result.setPoint(2, matrix.transformPoint(this->wall.getPoint(2)));
+		result.setPoint(3, matrix.transformPoint(this->wall.getPoint(3)));
+		return result;
+	}
+
 private:
 	int selected;				 //this is updated whenever the object is selected or deselected  0 = no, 1 = selected, 2 = stretch1, 3 = stretch2, 4 = rotater
 	sf::RectangleShape wall;	 //main wall object
 	sf::CircleShape transformer; //transformation object
 };
-
+/**
+ * This class will have one lazar rectangleshape and int speed in pixels/second
+ *
+ * update() give the vector of walls and check if it hits any of them. If it hits any of them, move back to where it hit the object, change direction, and continue moving
+ */
+/*
+class Lazar
+{
+	public:
+	void update()
+	private:
+};
+*/
 }

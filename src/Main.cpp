@@ -1,6 +1,10 @@
 #include "Objects.hpp"
 #include "Platform/Platform.hpp"
 
+bool isCounterClockwise(sf::Vector2f* A, sf::Vector2f* B, sf::Vector2f* C);
+bool intersect(sf::Vector2f* A, sf::Vector2f B, sf::Vector2f C, sf::Vector2f D);
+bool checkCollision(sf::Vector2i* mouse, Object::Wall* object);
+
 int main()
 {
 	util::Platform platform;
@@ -14,6 +18,7 @@ int main()
 	float screenScalingFactor = platform.getScreenScalingFactor(window.getSystemHandle());
 	// Use the screenScalingFactor
 	window.create(sf::VideoMode(700.0f * screenScalingFactor, 700.0f * screenScalingFactor), "SFML works!", sf::Style::Close);
+
 	platform.setIcon(window.getSystemHandle());
 
 	sf::Texture shapeTexture;
@@ -23,7 +28,6 @@ int main()
 	sf::Event event;
 	sf::Mouse mouse;
 	sf::Vector2i mousePos;		   //current mouse pos
-	sf::Vector2i lastMouse;		   //last frame mouse pos
 	sf::Vector2i relativeMousePos; //mouse pos relative to origin of selected object
 
 	bool lastFrameClick = false; //tells whether the mouse1 was pressed on the previous frame
@@ -45,7 +49,6 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
-		lastMouse = mousePos;
 		mousePos = mouse.getPosition(window);
 
 		//if user just clicked
@@ -58,7 +61,8 @@ int main()
 				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getTransformer()->getPosition().x, mouse.getPosition(window).y - selectedObject->getTransformer()->getPosition().y);
 			}
 			//if mouse is over the wall - will iterate through a list/vector of walls later
-			else if (firstWall.getWall()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
+			//else if (firstWall.getWall()->getGlobalBounds().contains(mouse.getPosition(window).x, mouse.getPosition(window).y))
+			else if (checkCollision(&mousePos, &firstWall))
 			{
 				selectedObject = &firstWall;
 				selectedObject->select();
@@ -91,4 +95,48 @@ int main()
 	}
 
 	return 0;
+}
+
+/**
+	 * Found on stack overflow - compares slopes of lines between 3 points and determines if abc are counter clockwise (true)
+	 */
+bool isCounterClockwise(sf::Vector2f* A, sf::Vector2f* B, sf::Vector2f* C)
+{
+	return (C->y - A->y) * (B->x - A->x) > (B->y - A->y) * (C->x - A->x);
+}
+
+/** Found on stack overflow = checks if AB and CD intersect - does not account for parallel lines
+ *
+ *
+ */
+bool intersect(sf::Vector2f* A, sf::Vector2f B, sf::Vector2f C, sf::Vector2f D)
+{
+	return isCounterClockwise(A, &C, &D) != isCounterClockwise(&B, &C, &D) and isCounterClockwise(A, &B, &C) != isCounterClockwise(A, &B, &D);
+}
+
+bool checkCollision(sf::Vector2i* mouse, Object::Wall* object)
+{
+	bool result = false;
+	sf::Vector2f lastPoint = object->getConvexShape().getPoint(3);
+	int collisionCounter = 0;
+	//comparing mouse & 5000, 5000 with lines made by the following points: 3-0, 0-1, 1-2, 2-3
+	for (int i = 0; i < 4; i++)
+	{
+		bool collision = false;
+		try
+		{
+			collision = intersect(&lastPoint, object->getConvexShape().getPoint(i), sf::Vector2f(mouse->x, mouse->y), sf::Vector2f(5000, 5000));
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << "INTERSECT ALGORITHM ERROR";
+		}
+		if (collision == true)
+		{
+			collisionCounter++;
+		}
+	}
+	if (collisionCounter % 2 == 1)
+		result = true;
+	return result;
 }
