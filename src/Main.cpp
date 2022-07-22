@@ -1,5 +1,6 @@
 #include "Objects.hpp"
 #include "Platform/Platform.hpp"
+#include "list"
 
 int main()
 {
@@ -8,6 +9,8 @@ int main()
 #if defined(_DEBUG)
 	std::cout << "Hello World!" << std::endl;
 #endif
+
+	clock_t runTimeTicks = clock();
 
 	sf::RenderWindow window;
 	// in Windows at least, this must be called before creating the window
@@ -43,6 +46,12 @@ int main()
 	//Object::Wall* mouseOver = &firstWall; //object directly under the mouse
 	Object::Wall* selectedObject = nullptr; //object clicked on - NOTE: Wall selected = true AFTER a full click & release
 
+	float lastTime = runTimeTicks / CLOCKS_PER_SEC;
+	float curTime = runTimeTicks / CLOCKS_PER_SEC;
+	float lastLazar = 0;
+
+	std::list<Object::Lazar*> lazarList;
+
 	while (window.isOpen())
 	{
 		while (window.pollEvent(event))
@@ -51,6 +60,33 @@ int main()
 				window.close();
 		}
 		mousePos = mouse.getPosition(window);
+		runTimeTicks = clock();
+		curTime = (float)runTimeTicks / CLOCKS_PER_SEC;
+		std::cout << "Cur time: " << curTime << "  Last Lazar: " << lastLazar << std::endl;
+		//if its time for another lazar
+		if (curTime - lastLazar > 0.1)
+		{
+			//add a new lazar
+			lastLazar = curTime;
+			Object::Lazar* newLazar = new Object::Lazar;
+			lazarList.insert(lazarList.end(), newLazar);
+		}
+		//iterating through each lazar
+		for (std::list<Object::Lazar*>::iterator lazarIterator = lazarList.begin(); lazarIterator != lazarList.end(); lazarIterator++)
+		{
+			//checking if each lazar is in bounds
+			if ((*lazarIterator)->getLazar()->getPosition().x > 700 || (*lazarIterator)->getLazar()->getPosition().y > 700)
+			{
+				//if out of bounds, delete lazar, move iterator back, and continue loop
+				lazarList.erase(lazarIterator);
+				lazarIterator--;
+			}
+			else
+			{
+				//if lazar is in bounds
+				(*lazarIterator)->update(curTime - lastTime, firstWall.getWall()->getRotation());
+			}
+		}
 
 		//if user just clicked
 		if (!lastFrameClick && mouse.isButtonPressed(sf::Mouse::Left))
@@ -90,7 +126,12 @@ int main()
 			lastFrameClick = false;
 		}
 
+		lastTime = curTime;
 		window.clear();
+		for (std::list<Object::Lazar*>::iterator lazarIterator = lazarList.begin(); lazarIterator != lazarList.end(); lazarIterator++)
+		{
+			window.draw(*(*lazarIterator)->getLazar());
+		}
 		firstWall.draw(&window);
 		window.display();
 	}

@@ -134,12 +134,35 @@ private:
  *
  * update() give the vector of walls and check if it hits any of them. If it hits any of them, move back to where it hit the object, change direction, and continue moving
  */
-/*
+
 class Lazar
 {
-	public:
-	void update()
-	private:
+public:
+	Lazar()
+	{
+		this->velocity = 200;
+		this->lazarBeam = sf::RectangleShape(sf::Vector2f(20, 5));
+		this->lazarBeam.setOrigin(10, 2.5);
+		this->lazarBeam.setPosition(350, 350);
+		this->lazarBeam.setFillColor(sf::Color::Red);
+	}
+	/**
+	 * This method takes care of all movement - using velocity and time passage to determine speed regardless of frames per second
+	 */
+	void update(float timePassed, int rotation)
+	{
+		this->lazarBeam.setRotation(rotation);
+		this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * (float)this->velocity * timePassed, this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * (float)this->velocity * timePassed);
+	}
+
+	sf::RectangleShape* getLazar()
+	{
+		return &this->lazarBeam;
+	}
+
+private:
+	sf::RectangleShape lazarBeam;
+	int velocity; //pixels/second
 };
-*/
+
 }
