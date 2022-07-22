@@ -19,13 +19,15 @@ public:
 	Wall()
 	{
 		this->selected = false;
-		this->wall = sf::RectangleShape(sf::Vector2f(100, 20));
+		this->wall = sf::RectangleShape(sf::Vector2f(100, 24));
 		this->wall.setFillColor(sf::Color::White);
 		this->wall.setOutlineColor(sf::Color::Red);
-		this->wall.setOrigin(50, 10);
-		this->transformer = sf::CircleShape(10);
-		this->transformer.setOrigin(10, 10);
-		this->transformer.setFillColor(sf::Color::Red);
+		this->wall.setOrigin(50, 12);
+		this->transformer = sf::CircleShape(12);
+		this->transformer.setOrigin(12, 12);
+		this->mover = sf::CircleShape(12);
+		this->mover.setOrigin(12, 12);
+		this->wall.setPosition(50, 50);
 	}
 
 	sf::RectangleShape* getWall()
@@ -37,22 +39,26 @@ public:
 	{
 		return &this->transformer;
 	}
+
+	sf::CircleShape* getMover()
+	{
+		return &this->mover;
+	}
+
 	/**
 	 * This function takes in the window and draws the wall
 	 * if the wall is selected, draw movement objects that scale to object size
 	 */
 	void draw(sf::RenderWindow* window)
 	{
-		//this->wall.setRotation(this->wall.getRotation() + 0.01);
-		/**
-		 * stretchers need to be 1/2 of x size distance from the center, rotated
-		 * rotator needs to be 40 pixels from center also rotated
-		 */
-
-		window->draw(wall);
+		window->draw(this->wall);
+		this->mover.setPosition(this->wall.getPosition());
+		this->mover.setRotation(this->wall.getRotation());
+		window->draw(this->mover);
 		if (selected)
 		{
 			this->transformer.setPosition(this->wall.getPosition().x + (((this->wall.getSize().x / 2) + 20) * cos(this->wall.getRotation() * PI / 180)), this->wall.getPosition().y + (((this->wall.getSize().x / 2) + 20) * sin(this->wall.getRotation() * PI / 180)));
+			this->transformer.setRotation(this->wall.getRotation() + 135);
 			window->draw(transformer);
 		}
 	}
@@ -116,24 +122,13 @@ public:
 		this->selected = 2;
 	}
 
-	//not working correctly almost tho.
-	sf::ConvexShape getConvexShape()
-	{
-		sf::ConvexShape result;
-		result.setPointCount(4);
-		sf::Transform matrix = this->wall.getTransform();
-		result.setPoint(0, matrix.transformPoint(this->wall.getPoint(0)));
-		result.setPoint(1, matrix.transformPoint(this->wall.getPoint(1)));
-		result.setPoint(2, matrix.transformPoint(this->wall.getPoint(2)));
-		result.setPoint(3, matrix.transformPoint(this->wall.getPoint(3)));
-		return result;
-	}
-
 private:
 	int selected;				 //this is updated whenever the object is selected or deselected  0 = no, 1 = selected, 2 = stretch1, 3 = stretch2, 4 = rotater
 	sf::RectangleShape wall;	 //main wall object
-	sf::CircleShape transformer; //transformation object
+	sf::CircleShape mover;		 //movement object - only drawn while editing
+	sf::CircleShape transformer; //transformation object - only drawn while selected
 };
+
 /**
  * This class will have one lazar rectangleshape and int speed in pixels/second
  *
