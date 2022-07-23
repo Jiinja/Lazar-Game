@@ -100,6 +100,14 @@ public:
 			}
 			this->wall.setOrigin(this->wall.getSize().x / 2, 10);
 		}
+		if (this->wall.getPosition().x > 700)
+			this->wall.setPosition(700, this->wall.getPosition().y);
+		if (this->wall.getPosition().y > 700)
+			this->wall.setPosition(this->wall.getPosition().x, 700);
+		if (this->wall.getPosition().x < 0)
+			this->wall.setPosition(0, this->wall.getPosition().y);
+		if (this->wall.getPosition().y < 0)
+			this->wall.setPosition(this->wall.getPosition().x, 0);
 	}
 
 	/**
@@ -138,20 +146,21 @@ private:
 class Lazar
 {
 public:
-	Lazar()
+	Lazar(int rotation = 0)
 	{
-		this->velocity = 200;
+		this->velocity = 100;
 		this->lazarBeam = sf::RectangleShape(sf::Vector2f(20, 5));
 		this->lazarBeam.setOrigin(10, 2.5);
 		this->lazarBeam.setPosition(350, 350);
 		this->lazarBeam.setFillColor(sf::Color::Red);
+		this->lazarBeam.setRotation(rotation);
 	}
 	/**
 	 * This method takes care of all movement - using velocity and time passage to determine speed regardless of frames per second
 	 */
-	void update(float timePassed, int rotation)
+	void update(float timePassed)
 	{
-		this->lazarBeam.setRotation(rotation);
+		//this->lazarBeam.setRotation(rotation);
 		this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * (float)this->velocity * timePassed, this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * (float)this->velocity * timePassed);
 	}
 
