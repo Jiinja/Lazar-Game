@@ -100,6 +100,10 @@ public:
 			}
 			this->wall.setOrigin(this->wall.getSize().x / 2, 10);
 		}
+	}
+
+	void fixPos()
+	{
 		if (this->wall.getPosition().x > 700)
 			this->wall.setPosition(700, this->wall.getPosition().y);
 		if (this->wall.getPosition().y > 700)
@@ -108,6 +112,7 @@ public:
 			this->wall.setPosition(0, this->wall.getPosition().y);
 		if (this->wall.getPosition().y < 0)
 			this->wall.setPosition(this->wall.getPosition().x, 0);
+
 	}
 
 	/**
@@ -158,9 +163,13 @@ public:
 	/**
 	 * This method takes care of all movement - using velocity and time passage to determine speed regardless of frames per second
 	 */
-	void update(float timePassed)
+	void update(float timePassed, std::list<Object::Wall*>* wallList)
 	{
-		//this->lazarBeam.setRotation(rotation);
+		//this->lazarBeam.setRotation();
+		for (std::list<Object::Wall*>::iterator wallIterator = wallList->end(); wallIterator != wallList->begin(); wallIterator++)
+		{
+
+		}
 		this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * (float)this->velocity * timePassed, this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * (float)this->velocity * timePassed);
 	}
 

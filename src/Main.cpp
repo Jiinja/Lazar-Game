@@ -78,6 +78,7 @@ int main()
 			if (event.type == sf::Event::Closed)
 				window.close();
 		}
+		//getting current mouse position and time for frame calculations
 		mousePos = mouse.getPosition(window);
 		runTimeTicks = clock();
 		curTime = (float)runTimeTicks / CLOCKS_PER_SEC;
@@ -96,13 +97,14 @@ int main()
 			if ((*lazarIterator)->getLazar()->getPosition().x > 725 || (*lazarIterator)->getLazar()->getPosition().y > 725 || (*lazarIterator)->getLazar()->getPosition().x < -25 || (*lazarIterator)->getLazar()->getPosition().y < -25)
 			{
 				//if out of bounds, delete lazar, move iterator back, and continue loop
+				delete *lazarIterator;
 				lazarList.erase(lazarIterator);
 				lazarIterator--;
 			}
 			else
 			{
 				//if lazar is in bounds
-				(*lazarIterator)->update(curTime - lastTime);
+				(*lazarIterator)->update(curTime - lastTime, &wallList);
 			}
 		}
 
@@ -115,10 +117,11 @@ int main()
 				selectedObject->selectTransformer();
 				relativeMousePos = sf::Vector2i(mousePos.x - selectedObject->getTransformer()->getPosition().x, mousePos.y - selectedObject->getTransformer()->getPosition().y);
 			}
-			//adding a wall
+			//adding a wall if you click on the wall adder
 			else if (wallAdder.getGlobalBounds().contains(mousePos.x, mousePos.y))
 			{
-				if(selectedObject != nullptr)
+				//deselecting old object
+				if (selectedObject != nullptr)
 				{
 					selectedObject->deselect();
 				}
@@ -126,13 +129,12 @@ int main()
 				newWall->getWall()->setTexture(&wallTexture);
 				newWall->getMover()->setTexture(&moverTexture);
 				newWall->getTransformer()->setTexture(&transformerTexture);
+				//selecting new object so you can drag and drop
+				selectedObject = newWall;
+				selectedObject->select();
 				wallList.push_back(newWall);
 			}
-			//deleting a wall
-			/*else if ()
-			{
-			}*/
-			//if mouse is over the wall - will iterate through a list/vector of walls later
+			//if mouse is over a wall - will select the wall "on top" of other walls
 			else
 			{
 				bool found = false;
@@ -141,7 +143,7 @@ int main()
 					wallIterator--;
 					if ((*wallIterator)->getMover()->getGlobalBounds().contains(mousePos.x, mousePos.y))
 					{
-						if(selectedObject != nullptr)
+						if (selectedObject != nullptr)
 						{
 							selectedObject->deselect();
 						}
@@ -161,35 +163,45 @@ int main()
 					}
 				}
 			}
-
-			/*else if (firstWall.getMover()->getGlobalBounds().contains(mousePos.x, mousePos.y))
-			{
-				selectedObject = &firstWall;
-				selectedObject->select();
-				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getWall()->getPosition().x, mouse.getPosition(window).y - selectedObject->getWall()->getPosition().y);
-			}
-			//if mouse is over nothing
-			else
-			{
-				if (selectedObject != nullptr)
-				{
-					selectedObject->deselect();
-					selectedObject = nullptr;
-				}
-			} */
 			lastFrameClick = true;
 		}
-
+		//if you have a selected object and are clicking
 		if (selectedObject != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
 		{
 			selectedObject->move(&mousePos, &relativeMousePos);
 		}
-		if (lastFrameClick && !mouse.isButtonPressed(sf::Mouse::Left)) //if mouse was just released
+		//if you just "let go" of object you are moving
+		else if (selectedObject != nullptr && !mouse.isButtonPressed(sf::Mouse::Left))
+		{
+			//check if it should be deleted
+			if (wallDeleter.getGlobalBounds().contains(selectedObject->getMover()->getPosition().x, selectedObject->getMover()->getPosition().y))
+			{
+				for (std::list<Object::Wall*>::iterator wallIterator = wallList.begin(); wallIterator != wallList.end(); wallIterator++)
+				{
+					//item in the list is found, erased and deleted
+					if (*wallIterator == selectedObject)
+					{
+						wallList.erase(wallIterator);
+						delete selectedObject;
+						selectedObject = nullptr;
+						break;
+					}
+				}
+			}
+			//else make sure it is within bounds and accessable to the user
+			else
+			{
+				selectedObject->fixPos();
+			}
+		}
+		//if mouse was just released
+		if (lastFrameClick && !mouse.isButtonPressed(sf::Mouse::Left))
 		{
 			lastFrameClick = false;
 		}
-
+		//frame processing is completed, set last time as current time for time between frames
 		lastTime = curTime;
+		//drawing everything
 		window.clear();
 		for (std::list<Object::Lazar*>::iterator lazarIterator = lazarList.begin(); lazarIterator != lazarList.end(); lazarIterator++)
 		{
@@ -202,6 +214,11 @@ int main()
 		window.draw(menuArea);
 		window.draw(wallAdder);
 		window.draw(wallDeleter);
+		//if you are moving an object, draw it over the menu so you can move it from the adder and to the deleter
+		if (selectedObject != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
+		{
+			selectedObject->draw(&window);
+		}
 		window.display();
 	}
 

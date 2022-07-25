@@ -80,7 +80,12 @@
     "iomanip": "cpp",
     "iostream": "cpp",
     "mutex": "cpp",
-    "thread": "cpp"
+    "thread": "cpp",
+    "bitset": "cpp",
+    "cstring": "cpp",
+    "regex": "cpp",
+    "future": "cpp",
+    "variant": "cpp"
   },
   "terminal.integrated.defaultProfile.windows": "Git Bash",
   "terminal.integrated.env.windows": {
