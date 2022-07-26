@@ -70,6 +70,8 @@ int main()
 
 	std::list<Object::Lazar*> lazarList;
 	std::list<Object::Wall*> wallList;
+	Object::LazarGun* lazarGun = new Object::LazarGun(800, 350);
+	lazarGun->getTransformer()->setTexture(&transformerTexture);
 
 	while (window.isOpen())
 	{
@@ -87,7 +89,7 @@ int main()
 		{
 			//add a new lazar
 			lastLazar = curTime;
-			Object::Lazar* newLazar = new Object::Lazar();
+			Object::Lazar* newLazar = new Object::Lazar(lazarGun->getLazarGun()->getRotation(), lazarGun->getLazarGun()->getPosition().x, lazarGun->getLazarGun()->getPosition().y);
 			lazarList.insert(lazarList.begin(), newLazar);
 		}
 		//iterating through each lazar
@@ -117,15 +119,33 @@ int main()
 				selectedObject->selectTransformer();
 				relativeMousePos = sf::Vector2i(mousePos.x - selectedObject->getTransformer()->getPosition().x, mousePos.y - selectedObject->getTransformer()->getPosition().y);
 			}
+			//if mouse is over rotator of lazarGun
+			else if (lazarGun->isSelected() && lazarGun->getTransformer()->getGlobalBounds().contains(mousePos.x, mousePos.y))
+			{
+				lazarGun->selectTransformer();
+				relativeMousePos = sf::Vector2i(mousePos.x - lazarGun->getTransformer()->getPosition().x, mousePos.y - lazarGun->getTransformer()->getPosition().y);
+			}
+			//if mouse is over the lazarGun
+			else if (lazarGun->getLazarGun()->getGlobalBounds().contains(mousePos.x, mousePos.y))
+			{
+				if(selectedObject != nullptr)
+				{
+					selectedObject->deselect();
+					selectedObject = nullptr;
+				}
+				lazarGun->select();
+				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - lazarGun->getLazarGun()->getPosition().x, mouse.getPosition(window).y - lazarGun->getLazarGun()->getPosition().y);
+			}
 			//adding a wall if you click on the wall adder
 			else if (wallAdder.getGlobalBounds().contains(mousePos.x, mousePos.y))
 			{
 				//deselecting old object
+				lazarGun->deselect();
 				if (selectedObject != nullptr)
 				{
 					selectedObject->deselect();
 				}
-				Object::Wall* newWall = new Object::Wall();
+				Object::Wall* newWall = new Object::Wall(mousePos.x, mousePos.y);
 				newWall->getWall()->setTexture(&wallTexture);
 				newWall->getMover()->setTexture(&moverTexture);
 				newWall->getTransformer()->setTexture(&transformerTexture);
@@ -137,6 +157,8 @@ int main()
 			//if mouse is over a wall - will select the wall "on top" of other walls
 			else
 			{
+				//deselecting the lazar
+				lazarGun->deselect();
 				bool found = false;
 				for (std::list<Object::Wall*>::iterator wallIterator = wallList.end(); wallIterator != wallList.begin();)
 				{
@@ -169,6 +191,10 @@ int main()
 		if (selectedObject != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
 		{
 			selectedObject->move(&mousePos, &relativeMousePos);
+		}
+		else if (lazarGun->isSelected() && mouse.isButtonPressed(sf::Mouse::Left))
+		{
+			lazarGun->move(&mousePos, &relativeMousePos);
 		}
 		//if you just "let go" of object you are moving
 		else if (selectedObject != nullptr && !mouse.isButtonPressed(sf::Mouse::Left))
@@ -219,6 +245,7 @@ int main()
 		{
 			selectedObject->draw(&window);
 		}
+		lazarGun->draw(&window);
 		window.display();
 	}
 
