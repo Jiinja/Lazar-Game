@@ -46,8 +46,8 @@ public:
 	}
 
 	/**
-	 * This function takes in the window and draws the wall
-	 * if the wall is selected, draw movement objects that scale to object size
+	 * This function takes in the window and draws the wall + movement object
+	 * if the wall is selected, draw transformer object that scales to object size
 	 */
 	void draw(sf::RenderWindow* window)
 	{
@@ -55,8 +55,10 @@ public:
 		this->mover.setPosition(this->wall.getPosition());
 		this->mover.setRotation(this->wall.getRotation());
 		window->draw(this->mover);
+		//if clicked on / selected
 		if (selected)
 		{
+			//updating transformer location & drawing
 			this->transformer.setPosition(this->wall.getPosition().x + (((this->wall.getSize().x / 2) + 20) * cos(this->wall.getRotation() * PI / 180)), this->wall.getPosition().y + (((this->wall.getSize().x / 2) + 20) * sin(this->wall.getRotation() * PI / 180)));
 			this->transformer.setRotation(this->wall.getRotation() + 135);
 			window->draw(transformer);
@@ -75,9 +77,10 @@ public:
 		{
 			this->wall.setPosition(mouse->x - offset->x, mouse->y - offset->y);
 		}
-		//Transform Selection
+		//Transform Selection -> rotate & resize object
 		else if (this->selected == 2)
 		{
+			//calculating new rotation based on mouse position
 			double newRotation = atan((this->wall.getPosition().y - mouse->y) / (this->wall.getPosition().x - mouse->x)) / PI * 180;
 			if (mouse->x - this->wall.getPosition().x <= 0)
 			{
@@ -89,6 +92,7 @@ public:
 				newRotation += 360;
 			this->wall.setRotation(newRotation);
 
+			//calculating new size & origin based on mouse distance
 			int wallMouseDist = sqrt(pow((mouse->x - offset->x - this->wall.getPosition().x), 2) + pow((mouse->y - offset->y - this->wall.getPosition().y), 2));
 			int wallTransDist = sqrt(pow((this->transformer.getPosition().x - this->wall.getPosition().x), 2) + pow((this->transformer.getPosition().y - this->wall.getPosition().y), 2));
 
@@ -102,6 +106,9 @@ public:
 		}
 	}
 
+	/**
+	 * This function is used to make sure that walls are always movable and never lost outside of the play area
+	 */
 	void fixPos()
 	{
 		if (this->wall.getPosition().x > 700)
@@ -115,7 +122,7 @@ public:
 	}
 
 	/**
-	 * This function changes the selection status
+	 * This function updates selected to true & updates the outline
 	 */
 	void select()
 	{
@@ -123,12 +130,18 @@ public:
 		this->selected = 1;
 	}
 
+	/**
+	 * This function deselects the object and removes the outline
+	 */
 	void deselect()
 	{
 		this->wall.setOutlineThickness(0);
 		this->selected = 0;
 	}
 
+	/**
+	 * This function updates the selection status so the move function knows that the transformer has been selected
+	 */
 	void selectTransformer()
 	{
 		this->selected = 2;
@@ -166,6 +179,9 @@ public:
 		return &this->transformer;
 	}
 
+	/**
+	 * This function draws the lazargun object and the transformer if selected
+	 */
 	void draw(sf::RenderWindow* window)
 	{
 		window->draw(this->lazarGun);
@@ -177,6 +193,10 @@ public:
 		}
 	}
 
+	/**
+	 * This function moves the lazargun object depending on the selection status
+	 *
+	 */
 	void move(sf::Vector2i* mouse, sf::Vector2i* offset)
 	{
 		//normal selection -> move object around
@@ -184,7 +204,7 @@ public:
 		{
 			this->lazarGun.setPosition(mouse->x - offset->x, mouse->y - offset->y);
 		}
-		//Transform Selection
+		//Transform Selection -> rotate object
 		else if (this->selected == 2)
 		{
 			double newRotation = atan((this->lazarGun.getPosition().y - mouse->y) / (this->lazarGun.getPosition().x - mouse->x)) / PI * 180;
@@ -200,6 +220,9 @@ public:
 		}
 	}
 
+	/**
+	 * This function is called to ensure the lazargun always remains accessable in the play area
+	 */
 	void fixPos()
 	{
 		if (this->lazarGun.getPosition().x > 900)
@@ -212,23 +235,35 @@ public:
 			this->lazarGun.setPosition(this->lazarGun.getPosition().x, 0);
 	}
 
+	/**
+	 * This function updates selection and outlines the lazargun
+	 */
 	void select()
 	{
 		this->lazarGun.setOutlineThickness(2);
 		this->selected = 1;
 	}
 
+	/**
+	 * this function removes the outline and deselects
+	 */
 	void deselect()
 	{
 		this->lazarGun.setOutlineThickness(0);
 		this->selected = 0;
 	}
 
+	/**
+	 * This function updates the selection and lets the move function know that the transformer has been selected
+	 */
 	void selectTransformer()
 	{
 		this->selected = 2;
 	}
 
+	/**
+	 * this function is used to determine the selection state
+	 */
 	bool isSelected()
 	{
 		return this->selected;
@@ -259,26 +294,20 @@ public:
 		this->lazarBeam.setRotation(rotation);
 		this->reflectionCoolDown = 0;
 	}
+
 	/**
-	 * This method takes care of all movement - using velocity and time passage to determine speed regardless of frames per second
+	 * This function takes care of all movement - using velocity and time passage to determine speed regardless of frames per second
+	 * This function additionally checks locations of each wall and takes care of reflections
 	 */
 	void update(double timePassed, std::list<Object::Wall*>* wallList)
 	{
+		//updating reflection cooldown each frame
 		this->reflectionCoolDown--;
 		double nextDistance = (double)this->velocity * timePassed;
 		double nextX = this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * nextDistance;
 		double nextY = this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * nextDistance;
 
-		/**   LAZAR REFLECTIONS PLAN - do for each side of each wall
-		 *    1 - Get points to side of wall
-		 * 	  2 - Find intersection assuming lazar does not change directions
-		 *    3 - Find distance from current position to possible intersection location
-		 * 	  4 - Check each side of every wall for shortest distance within nextDistance
-		 *    5 - Subtract distance of found intersection from nextDistance.
-		 *    6 - Update rotation based on rotation of wall
-		 *    7 - move rest of distance
-		 */
-
+		//these used for reflections later
 		double minX = -1;
 		double minY = -1;
 		double minInterceptDist = minY + minX;
@@ -288,12 +317,15 @@ public:
 		double a1 = this->lazarBeam.getPosition().y - nextY;
 		double b1 = nextX - this->lazarBeam.getPosition().x;
 		double c1 = a1 * nextX + b1 * nextY;
+
 		//10 frame reflection cooldown for each lazar
 		if (this->reflectionCoolDown < 1)
 		{
+			//iterating through each wall
 			for (std::list<Object::Wall*>::iterator wallIterator = wallList->begin(); wallIterator != wallList->end(); wallIterator++)
 			{
 				Object::Wall* currentWall = *wallIterator;
+				//each wall has 2 sides
 				for (int i = 0; i < 2; i++)
 				{
 					int p1 = 2 * i;
@@ -313,7 +345,7 @@ public:
 					if (determinant != 0)
 					{
 						double xIntercept = (b2 * c1 - b1 * c2) / determinant;
-						//checking if within bounds of the wall
+						//checking if possible xIntercept is within bounds of the wall
 						if ((xIntercept <= x1 && xIntercept >= x2) || (xIntercept <= x2 && xIntercept >= x1))
 						{
 							double yIntercept = (a1 * c2 - a2 * c1) / determinant;
@@ -325,6 +357,7 @@ public:
 								//checking if there was a closer interception
 								if (interceptDist < minInterceptDist || minInterceptDist == -2)
 								{
+									//updating reflection variables
 									minInterceptDist = interceptDist;
 									minX = xIntercept;
 									minY = yIntercept;
@@ -335,8 +368,10 @@ public:
 					}
 				}
 			}
+			//if an intercept was found
 			if (minInterceptDist != -2)
 			{
+				//calculating reflection exit angle
 				int newRotation = 0;
 				int wallAngle1 = wallAngle;
 				int wallAngle2 = wallAngle1 + 180;
@@ -350,9 +385,10 @@ public:
 				{
 					newRotation = wallAngle2 + (abs(wallAngle2 - this->lazarBeam.getRotation()));
 				}
-
+				//moving the lazar to the reflection point & changin angle
 				this->lazarBeam.setRotation(newRotation);
 				this->lazarBeam.setPosition(minX, minY);
+				//moving the rest of the appropriate distance according to velocity, time passed, and distance travelled before the reflection
 				this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * (nextDistance - minInterceptDist), this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * (nextDistance - minInterceptDist));
 				this->reflectionCoolDown = 10;
 			}
