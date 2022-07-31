@@ -78,7 +78,7 @@ public:
 		//Transform Selection
 		else if (this->selected == 2)
 		{
-			float newRotation = atan((this->wall.getPosition().y - mouse->y) / (this->wall.getPosition().x - mouse->x)) / PI * 180;
+			double newRotation = atan((this->wall.getPosition().y - mouse->y) / (this->wall.getPosition().x - mouse->x)) / PI * 180;
 			if (mouse->x - this->wall.getPosition().x <= 0)
 			{
 				newRotation += 180;
@@ -187,7 +187,7 @@ public:
 		//Transform Selection
 		else if (this->selected == 2)
 		{
-			float newRotation = atan((this->lazarGun.getPosition().y - mouse->y) / (this->lazarGun.getPosition().x - mouse->x)) / PI * 180;
+			double newRotation = atan((this->lazarGun.getPosition().y - mouse->y) / (this->lazarGun.getPosition().x - mouse->x)) / PI * 180;
 			if (mouse->x - this->lazarGun.getPosition().x <= 0)
 			{
 				newRotation += 180;
@@ -249,30 +249,118 @@ private:
 class Lazar
 {
 public:
-	Lazar(int rotation = 0, int x = 350, int y = 350)
+	Lazar(int rotation = 0, int x = 350, int y = 350, int newVelocity = 100)
 	{
-		this->velocity = 100;
+		this->velocity = newVelocity;
 		this->lazarBeam = sf::RectangleShape(sf::Vector2f(20, 5));
 		this->lazarBeam.setOrigin(10, 2.5);
 		this->lazarBeam.setPosition(x, y);
 		this->lazarBeam.setFillColor(sf::Color::Red);
 		this->lazarBeam.setRotation(rotation);
+		this->reflectionCoolDown = 0;
 	}
 	/**
 	 * This method takes care of all movement - using velocity and time passage to determine speed regardless of frames per second
 	 */
-	void update(float timePassed, std::list<Object::Wall*>* wallList)
+	void update(double timePassed, std::list<Object::Wall*>* wallList)
 	{
-		//this->lazarBeam.setRotation();
-		for (std::list<Object::Wall*>::iterator wallIterator = wallList->begin(); wallIterator != wallList->end(); wallIterator++)
+		this->reflectionCoolDown--;
+		double nextDistance = (double)this->velocity * timePassed;
+		double nextX = this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * nextDistance;
+		double nextY = this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * nextDistance;
+
+		/**   LAZAR REFLECTIONS PLAN - do for each side of each wall
+		 *    1 - Get points to side of wall
+		 * 	  2 - Find intersection assuming lazar does not change directions
+		 *    3 - Find distance from current position to possible intersection location
+		 * 	  4 - Check each side of every wall for shortest distance within nextDistance
+		 *    5 - Subtract distance of found intersection from nextDistance.
+		 *    6 - Update rotation based on rotation of wall
+		 *    7 - move rest of distance
+		 */
+
+		double minX = -1;
+		double minY = -1;
+		double minInterceptDist = minY + minX;
+		int wallAngle = 0;
+
+		//lazar "line" = a1x + b1y = c1
+		double a1 = this->lazarBeam.getPosition().y - nextY;
+		double b1 = nextX - this->lazarBeam.getPosition().x;
+		double c1 = a1 * nextX + b1 * nextY;
+		//10 frame reflection cooldown for each lazar
+		if (this->reflectionCoolDown < 1)
 		{
-			//Object::Wall* currentWall = *wallIterator;
-			//std::cout << "0: (" << currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(0)).x << ", " << currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(0)).y << ")  ";
-			//std::cout << "0: (" << currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(1)).x << ", " << currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(1)).y << ")  ";
-			//std::cout << "0: (" << currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(2)).x << ", " << currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(2)).y << ")  ";
-			//std::cout << "0: (" << currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(3)).x << ", " << currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(3)).y << ")  " << std::endl;
+			for (std::list<Object::Wall*>::iterator wallIterator = wallList->begin(); wallIterator != wallList->end(); wallIterator++)
+			{
+				Object::Wall* currentWall = *wallIterator;
+				for (int i = 0; i < 2; i++)
+				{
+					int p1 = 2 * i;
+					int p2 = (2 * i) + 1;
+					double x1 = currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(p1)).x;
+					double y1 = currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(p1)).y;
+					double x2 = currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(p2)).x;
+					double y2 = currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(p2)).y;
+
+					//wall side "line" = a2x + b2y = c2
+					double a2 = y1 - y2;
+					double b2 = x2 - x1;
+					double c2 = a2 * x2 + b2 * y2;
+
+					double determinant = a1 * b2 - a2 * b1;
+					//parallel check
+					if (determinant != 0)
+					{
+						double xIntercept = (b2 * c1 - b1 * c2) / determinant;
+						//checking if within bounds of the wall
+						if ((xIntercept <= x1 && xIntercept >= x2) || (xIntercept <= x2 && xIntercept >= x1))
+						{
+							double yIntercept = (a1 * c2 - a2 * c1) / determinant;
+							double interceptDist = sqrt(pow(this->lazarBeam.getPosition().x - xIntercept, 2) + pow(this->lazarBeam.getPosition().y - yIntercept, 2));
+							//double nextInterceptDist = sqrt(pow(nextX - xIntercept, 2) + pow(nextY - yIntercept, 2));
+							//checking if the collision should happen and could happen in this frame
+							if (/*nextInterceptDist < interceptDist && */ interceptDist <= nextDistance + 0.1)
+							{
+								//checking if there was a closer interception
+								if (interceptDist < minInterceptDist || minInterceptDist == -2)
+								{
+									minInterceptDist = interceptDist;
+									minX = xIntercept;
+									minY = yIntercept;
+									wallAngle = currentWall->getWall()->getRotation();
+								}
+							}
+						}
+					}
+				}
+			}
+			if (minInterceptDist != -2)
+			{
+				int newRotation = 0;
+				int wallAngle1 = wallAngle;
+				int wallAngle2 = wallAngle1 + 180;
+				if (wallAngle2 > 360)
+					wallAngle2 -= 360;
+				if (abs(wallAngle1 - this->lazarBeam.getRotation()) < abs(wallAngle2 - this->lazarBeam.getRotation()))
+				{
+					newRotation = wallAngle1 + (abs(wallAngle1 - this->lazarBeam.getRotation()));
+				}
+				else
+				{
+					newRotation = wallAngle2 + (abs(wallAngle2 - this->lazarBeam.getRotation()));
+				}
+
+				this->lazarBeam.setRotation(newRotation);
+				this->lazarBeam.setPosition(minX, minY);
+				this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * (nextDistance - minInterceptDist), this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * (nextDistance - minInterceptDist));
+				this->reflectionCoolDown = 10;
+			}
 		}
-		this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * (float)this->velocity * timePassed, this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * (float)this->velocity * timePassed);
+		if (!reflectionCoolDown || minInterceptDist == -2)
+		{
+			this->lazarBeam.setPosition(nextX, nextY);
+		}
 	}
 
 	sf::RectangleShape* getLazar()
@@ -283,6 +371,7 @@ public:
 private:
 	sf::RectangleShape lazarBeam;
 	int velocity; //pixels/second
+	int reflectionCoolDown;
 };
 
 }

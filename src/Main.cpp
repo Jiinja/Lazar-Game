@@ -14,7 +14,7 @@ int main()
 
 	sf::RenderWindow window;
 	// in Windows at least, this must be called before creating the window
-	float screenScalingFactor = platform.getScreenScalingFactor(window.getSystemHandle());
+	double screenScalingFactor = platform.getScreenScalingFactor(window.getSystemHandle());
 	// Use the screenScalingFactor
 	window.create(sf::VideoMode(900.0f * screenScalingFactor, 700.0f * screenScalingFactor), "SFML works!", sf::Style::Close);
 
@@ -64,9 +64,9 @@ int main()
 
 	Object::Wall* selectedObject = nullptr; //object clicked on - NOTE: Wall selected = true AFTER a full click & release
 
-	float lastTime = runTimeTicks / CLOCKS_PER_SEC;
-	float curTime = runTimeTicks / CLOCKS_PER_SEC;
-	float lastLazar = 0;
+	double lastTime = runTimeTicks / CLOCKS_PER_SEC;
+	double curTime = runTimeTicks / CLOCKS_PER_SEC;
+	double lastLazar = 0;
 
 	std::list<Object::Lazar*> lazarList;
 	std::list<Object::Wall*> wallList;
@@ -83,13 +83,13 @@ int main()
 		//getting current mouse position and time for frame calculations
 		mousePos = mouse.getPosition(window);
 		runTimeTicks = clock();
-		curTime = (float)runTimeTicks / CLOCKS_PER_SEC;
+		curTime = (double)runTimeTicks / CLOCKS_PER_SEC;
 		//if its time for another lazar
 		if (curTime - lastLazar > 0.2)
 		{
 			//add a new lazar
 			lastLazar = curTime;
-			Object::Lazar* newLazar = new Object::Lazar(lazarGun->getLazarGun()->getRotation(), lazarGun->getLazarGun()->getPosition().x, lazarGun->getLazarGun()->getPosition().y);
+			Object::Lazar* newLazar = new Object::Lazar(lazarGun->getLazarGun()->getRotation(), lazarGun->getLazarGun()->getPosition().x, lazarGun->getLazarGun()->getPosition().y, 100);
 			lazarList.insert(lazarList.begin(), newLazar);
 		}
 		//iterating through each lazar
@@ -128,7 +128,7 @@ int main()
 			//if mouse is over the lazarGun
 			else if (lazarGun->getLazarGun()->getGlobalBounds().contains(mousePos.x, mousePos.y))
 			{
-				if(selectedObject != nullptr)
+				if (selectedObject != nullptr)
 				{
 					selectedObject->deselect();
 					selectedObject = nullptr;
