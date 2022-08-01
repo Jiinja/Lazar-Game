@@ -314,7 +314,7 @@ public:
 		//if its time to calculate the next reflection
 		if (reflectionCoolDown == false)
 		{
-			this->reflectionCoolDown = true;
+			this->reflectionCoolDown = 10;
 			//values used for reflection calculation
 			double minInterceptDist = -1;
 			int wallAngle = 0;
@@ -354,8 +354,14 @@ public:
 							//finding the rest of the intercept/reflection location details
 							double yIntercept = (a1 * c2 - a2 * c1) / determinant;
 							double interceptDist = sqrt(pow(this->lazarBeam.getPosition().x - xIntercept, 2) + pow(this->lazarBeam.getPosition().y - yIntercept, 2));
-							if(xIntercept - (int)xIntercept > 0.5) xIntercept = (int)xIntercept + 1;
-							if(yIntercept - (int)yIntercept > 0.5) yIntercept = (int)yIntercept + 1;
+							if (xIntercept - (int)xIntercept > 0.5)
+								xIntercept = (int)xIntercept + 1;
+							else
+								xIntercept = (int)xIntercept;
+							if (yIntercept - (int)yIntercept > 0.5)
+								yIntercept = (int)yIntercept + 1;
+							else
+								yIntercept = (int)yIntercept;
 							//making sure the interception is the right direction
 							bool correctDirection = false;
 							//lazar moving right
@@ -446,11 +452,16 @@ public:
 			this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * this->nextReflectionDistance, this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * this->nextReflectionDistance);
 			//reflect and continue moving the rest of the appropriate distance
 			this->lazarBeam.setRotation(this->nextReflectionAngle);
-			this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * (nextDistance - this->nextReflectionDistance), this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) *  (nextDistance - this->nextReflectionDistance));
-			reflectionCoolDown = false;
+			this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * (nextDistance - this->nextReflectionDistance), this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * (nextDistance - this->nextReflectionDistance));
+			this->recalculateReflection = true;
+			this->nextReflectionDistance = 1000;
 		}
 		else
 		{
+			if (recalculateReflection)
+			{
+				this->reflectionCoolDown--;
+			}
 			this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * nextDistance, this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * nextDistance);
 			this->nextReflectionDistance = this->nextReflectionDistance - nextDistance;
 		}
@@ -464,7 +475,8 @@ public:
 private:
 	sf::RectangleShape lazarBeam;
 	int velocity; //pixels/second
-	bool reflectionCoolDown;
+	bool recalculateReflection;
+	int reflectionCoolDown;
 	double nextReflectionDistance;
 	int nextReflectionAngle;
 };
