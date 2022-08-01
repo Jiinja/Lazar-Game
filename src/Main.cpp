@@ -19,6 +19,7 @@ int main()
 	window.create(sf::VideoMode(900.0f * screenScalingFactor, 700.0f * screenScalingFactor), "SFML works!", sf::Style::Close);
 
 	platform.setIcon(window.getSystemHandle());
+	window.setFramerateLimit(0);
 
 	sf::Texture wallTexture;
 	wallTexture.loadFromFile("content/wall.png");
@@ -109,11 +110,11 @@ int main()
 		//if its time for another lazar
 		if (shootLazars)
 		{
-			if (curTime - lastLazar > 0.15)
+			if (curTime - lastLazar > 0.05)
 			{
 				//add a new lazar
 				lastLazar = curTime;
-				Object::Lazar* newLazar = new Object::Lazar(lazarGun->getLazarGun()->getRotation(), lazarGun->getLazarGun()->getPosition().x, lazarGun->getLazarGun()->getPosition().y, 100);
+				Object::Lazar* newLazar = new Object::Lazar(lazarGun->getLazarGun()->getRotation(), lazarGun->getLazarGun()->getPosition().x, lazarGun->getLazarGun()->getPosition().y, 200);
 				newLazar->getLazar()->setTexture(&lazarBeamTexture);
 				lazarList.insert(lazarList.begin(), newLazar);
 			}

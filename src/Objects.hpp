@@ -296,7 +296,8 @@ public:
 		this->lazarBeam.setPosition(x, y);
 		this->lazarBeam.setFillColor(sf::Color::White);
 		this->lazarBeam.setRotation(rotation);
-		this->reflectionCoolDown = false;
+		this->reflectionCoolDown = 0;
+		this->recalculateReflection = false;
 		this->nextReflectionDistance = 1000;
 	}
 
@@ -308,13 +309,14 @@ public:
 	{
 		//updating standard movement parameters
 		double nextDistance = (double)this->velocity * timePassed;
-		double nextX = this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * nextDistance;
-		double nextY = this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * nextDistance;
+		double nextX = this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * 100;
+		double nextY = this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * 100;
 
 		//if its time to calculate the next reflection
-		if (reflectionCoolDown == false)
+		if (reflectionCoolDown == 0)
 		{
 			this->reflectionCoolDown = 10;
+			this->recalculateReflection = false;
 			//values used for reflection calculation
 			double minInterceptDist = -1;
 			int wallAngle = 0;
@@ -345,23 +347,16 @@ public:
 
 					double determinant = a1 * b2 - a2 * b1;
 					//parallel check
-					if (determinant != 0)
+					if (determinant != 0.00)
 					{
 						double xIntercept = (b2 * c1 - b1 * c2) / determinant;
 						//checking if possible xIntercept is within bounds of the wall
 						if ((xIntercept <= x1 && xIntercept >= x2) || (xIntercept <= x2 && xIntercept >= x1))
 						{
+
 							//finding the rest of the intercept/reflection location details
 							double yIntercept = (a1 * c2 - a2 * c1) / determinant;
 							double interceptDist = sqrt(pow(this->lazarBeam.getPosition().x - xIntercept, 2) + pow(this->lazarBeam.getPosition().y - yIntercept, 2));
-							if (xIntercept - (int)xIntercept > 0.5)
-								xIntercept = (int)xIntercept + 1;
-							else
-								xIntercept = (int)xIntercept;
-							if (yIntercept - (int)yIntercept > 0.5)
-								yIntercept = (int)yIntercept + 1;
-							else
-								yIntercept = (int)yIntercept;
 							//making sure the interception is the right direction
 							bool correctDirection = false;
 							//lazar moving right
@@ -405,15 +400,14 @@ public:
 								}
 							}
 							//checking if its the correction direction and if a closer reflection/interception was found
-							if (correctDirection && (interceptDist < minInterceptDist || minInterceptDist == -1))
+							if (correctDirection)
 							{
-								//updating temp interception distance
-								minInterceptDist = interceptDist;
-								wallAngle = currentWall->getWall()->getRotation();
-							}
-							else
-							{
-								std::cout << "WHY!" << std::endl;
+								if (interceptDist < minInterceptDist || minInterceptDist == -1)
+								{
+									//updating temp interception distance
+									minInterceptDist = interceptDist;
+									wallAngle = currentWall->getWall()->getRotation();
+								}
 							}
 						}
 					}
