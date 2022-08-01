@@ -16,10 +16,14 @@ int main()
 	// in Windows at least, this must be called before creating the window
 	double screenScalingFactor = platform.getScreenScalingFactor(window.getSystemHandle());
 	// Use the screenScalingFactor
-	window.create(sf::VideoMode(900.0f * screenScalingFactor, 700.0f * screenScalingFactor), "SFML works!", sf::Style::Close);
+	window.create(sf::VideoMode(900.0f * screenScalingFactor, 700.0f * screenScalingFactor), "LAZAR GAME", sf::Style::Close);
 
 	platform.setIcon(window.getSystemHandle());
 	window.setFramerateLimit(0);
+
+	sf::Image icon;
+	icon.loadFromFile("content/gameIcon.png");
+	window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
 	sf::Texture wallTexture;
 	wallTexture.loadFromFile("content/wall.png");
@@ -117,11 +121,11 @@ int main()
 		//if its time for another lazar
 		if (shootLazars)
 		{
-			if (curTime - lastLazar > 0.05)
+			if (curTime - lastLazar > 0.025)
 			{
 				//add a new lazar
 				lastLazar = curTime;
-				Object::Lazar* newLazar = new Object::Lazar(lazarGun->getLazarGun()->getRotation(), lazarGun->getLazarGun()->getPosition().x, lazarGun->getLazarGun()->getPosition().y, 200);
+				Object::Lazar* newLazar = new Object::Lazar(lazarGun->getLazarGun()->getRotation(), lazarGun->getLazarGun()->getPosition().x, lazarGun->getLazarGun()->getPosition().y, 500);
 				newLazar->getLazar()->setTexture(&lazarBeamTexture);
 				lazarList.insert(lazarList.begin(), newLazar);
 			}
@@ -215,7 +219,7 @@ int main()
 			}
 			else if (reset.getGlobalBounds().contains(mousePos.x, mousePos.y))
 			{
-				if(selectedObject != nullptr)
+				if (selectedObject != nullptr)
 				{
 					selectedObject->deselect();
 					selectedObject = nullptr;
@@ -231,7 +235,7 @@ int main()
 					}
 					lazarList.clear();
 				}
-				for(std::list<Object::Wall*>::iterator wallIterator = wallList.begin(); wallIterator != wallList.end(); wallIterator++)
+				for (std::list<Object::Wall*>::iterator wallIterator = wallList.begin(); wallIterator != wallList.end(); wallIterator++)
 				{
 					delete *wallIterator;
 				}

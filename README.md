@@ -2,15 +2,25 @@
 
 After making my first game, [Zombie Game](https://github.com/WhyPine/Zombie-Game), with C++ using SFML with the help of some friends a few months ago, I wanted to use what I learned and challenge myself to make a game alone.
 
-This game is intended to be a simple sandbox where you can play with lazar beams reflecting off walls. This is still a work in progress and many features are not yet completed or even added. I came up with this idea while taking a summer physics for engineers class where I learned about how light reflects and refracts. I had an idea to make a game implementing both features and found that reflections are much more fun to play with (and easier) than refractions. I may add refractions at a later date, however. My code is thoroughly commented so you can see my thought process on how things (are supposed to) work. Check out IDEA.txt to see my initial idea and compare it to how things ended up! :)
+This game is intended to be a simple sandbox where you can play with lazar beams reflecting off walls. I came up with this idea while taking a summer physics for engineers class where I learned about how light reflects and refracts. I had an idea to make a game implementing both features and found that reflections are much more fun to play with (and easier) than refractions. My code is thoroughly commented so you can see my thought process on how things (are supposed to) work. Check out IDEA.txt to see my initial idea and compare it to how things ended up! :)
 
 > Note: I used this to get started: https://github.com/rewrking/sfml-vscode-boilerplate
 
-Check out this [Demo Video](https://youtu.be/fzR5mcfk57k)
 
-## UI Demo
+## Gameplay
+### Check out this [Demo Video](https://youtu.be/mOFwntEncUQ)
 
 ![Lazar Game UI](UIv1.png)
+
+### About the game
+- Click on the large green box to add as many walls as you want
+- Drag and drop walls anywhere on the play area using the small blue circles before pressing play
+- Drag and drop walls onto the large red box to delete them
+- Drag and drop the Lazar Gun at any time to any location
+- Click on the smaller red circles after clicking on an object to rotate and/or resize
+- Press the blue play button to lock the walls in place and begin shooting lazars from the lazar gun
+- Press the blue pause button to delete all lazars and move walls around again
+- Press the small white X button on the bottom right to reset everything
 
 ## Features
 
@@ -41,7 +51,3 @@ Check out this [Demo Video](https://youtu.be/fzR5mcfk57k)
 - Pause/play button
   - Hit play to lock all walls in place and begin shooting lazars
   - Hit pause to get rid of lazars and move walls around
-
-### Planned
-
-- All planned features have been completed
