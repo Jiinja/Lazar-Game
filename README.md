@@ -4,15 +4,18 @@ After making my first game, [Zombie Game](https://github.com/WhyPine/Zombie-Game
 
 This game is intended to be a simple sandbox where you can play with lazar beams reflecting off walls. I came up with this idea while taking a summer physics for engineers class where I learned about how light reflects and refracts. I had an idea to make a game implementing both features and found that reflections are much more fun to play with (and easier) than refractions. My code is thoroughly commented so you can see my thought process on how things (are supposed to) work. Check out IDEA.txt to see my initial idea and compare it to how things ended up! :)
 
+Download LAZARGAME.zip to play it yourself!
+
 > Note: I used this to get started: https://github.com/rewrking/sfml-vscode-boilerplate
 
-
 ## Gameplay
+
 ### Check out this [Demo Video](https://youtu.be/mOFwntEncUQ)
 
 ![Lazar Game UI](UIv1.png)
 
 ### About the game
+
 - Click on the large green box to add as many walls as you want
 - Drag and drop walls anywhere on the play area using the small blue circles before pressing play
 - Drag and drop walls onto the large red box to delete them
