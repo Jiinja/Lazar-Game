@@ -49,12 +49,16 @@ public:
 	 * This function takes in the window and draws the wall + movement object
 	 * if the wall is selected, draw transformer object that scales to object size
 	 */
-	void draw(sf::RenderWindow* window)
+	void draw(sf::RenderWindow* window, bool movable)
 	{
 		window->draw(this->wall);
-		this->mover.setPosition(this->wall.getPosition());
-		this->mover.setRotation(this->wall.getRotation());
-		window->draw(this->mover);
+		//if lazars aren't shooting
+		if (movable)
+		{
+			this->mover.setPosition(this->wall.getPosition());
+			this->mover.setRotation(this->wall.getRotation());
+			window->draw(this->mover);
+		}
 		//if clicked on / selected
 		if (selected)
 		{
@@ -161,7 +165,7 @@ public:
 	{
 		this->selected = false;
 		this->lazarGun = sf::RectangleShape(sf::Vector2f(36, 24));
-		this->lazarGun.setFillColor(sf::Color::Green);
+		this->lazarGun.setFillColor(sf::Color::White);
 		this->lazarGun.setOutlineColor(sf::Color::Red);
 		this->lazarGun.setOrigin(18, 12);
 		this->transformer = sf::CircleShape(12);
@@ -240,7 +244,7 @@ public:
 	 */
 	void select()
 	{
-		this->lazarGun.setOutlineThickness(2);
+		//this->lazarGun.setOutlineThickness(2);
 		this->selected = 1;
 	}
 
@@ -290,7 +294,7 @@ public:
 		this->lazarBeam = sf::RectangleShape(sf::Vector2f(20, 5));
 		this->lazarBeam.setOrigin(10, 2.5);
 		this->lazarBeam.setPosition(x, y);
-		this->lazarBeam.setFillColor(sf::Color::Red);
+		this->lazarBeam.setFillColor(sf::Color::White);
 		this->lazarBeam.setRotation(rotation);
 		this->reflectionCoolDown = 0;
 	}
