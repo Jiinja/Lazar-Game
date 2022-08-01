@@ -1,6 +1,6 @@
 # Lazar Game
 
-After making my first game, [Zombie Game](https://github.com/WhyPine/Zombie-Game), with C++ using SFML with the help of some friends a few months ago, I wanted to use what I learned and challenge myself to make a game alone.
+After making my first game, [Zombie Game](https://github.com/WhyPine/Zombie-Game), with C++ using SFML with the help of some friends a few months ago, I wanted to use what I learned and challenge myself to make a game alone. Each time I worked on this project, I went in with a small goal for the day. This helped immensely because the reflection code was pretty daunting, but I managed to figure it out step by step. Also, making small goals each day made it always feel good to work on this project.
 
 This game is intended to be a simple sandbox where you can play with lazar beams reflecting off walls. I came up with this idea while taking a summer physics for engineers class where I learned about how light reflects and refracts. I had an idea to make a game implementing both features and found that reflections are much more fun to play with (and easier) than refractions. My code is thoroughly commented so you can see my thought process on how things (are supposed to) work. Check out IDEA.txt to see my initial idea and compare it to how things ended up! :)
 
@@ -51,3 +51,5 @@ This game is intended to be a simple sandbox where you can play with lazar beams
 - Pause/play button
   - Hit play to lock all walls in place and begin shooting lazars
   - Hit pause to get rid of lazars and move walls around
+- Reset button
+  - Hit the reset button on the bottom right to reset the game
