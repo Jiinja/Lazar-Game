@@ -31,7 +31,7 @@ Check out this [Demo Video](https://youtu.be/fzR5mcfk57k)
   - Lazar beam is a solid beam made up of multiple lazar objects
   - Individual lazars are deleted when moving off screen
   - Lazar gun object can be moved around and rotated
-  - Lazars reflect off walls, but sometimes phase through
+  - Lazars reflect off all sides of walls
   - Custom texture for the lazar beam
 - Lazar Gun
   - The lazar gun spawns in the grey area under "Lazar Gun"
@@ -44,12 +44,4 @@ Check out this [Demo Video](https://youtu.be/fzR5mcfk57k)
 
 ### Planned
 
-- Lazar beam
-  - Consistent reflections
-- Reset map button + texture
-
-### Extra - may not be implemented depending on how much time I have with work & school
-
-- Map saves
-- Obstacles
-- Goal object
+- All planned features have been completed

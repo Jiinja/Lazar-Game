@@ -41,6 +41,8 @@ int main()
 	lazarBeamTexture.loadFromFile("content/lazar.png");
 	sf::Texture lazarGunTexture;
 	lazarGunTexture.loadFromFile("content/lazarGun.png");
+	sf::Texture resetTexture;
+	resetTexture.loadFromFile("content/reset.png");
 
 	sf::Event event;
 	sf::Mouse mouse;
@@ -77,6 +79,11 @@ int main()
 	lazarEnabler.setSize(sf::Vector2f(75, 75));
 	lazarEnabler.setPosition(762, 400);
 	lazarEnabler.setTexture(&lazarPlayTexture);
+
+	sf::RectangleShape reset;
+	reset.setSize(sf::Vector2f(20, 20));
+	reset.setPosition(880, 680);
+	reset.setTexture(&resetTexture);
 
 	//Object::Wall firstWall;
 	//firstWall.getWall()->setTexture(&wallTexture);
@@ -206,6 +213,33 @@ int main()
 				selectedObject->select();
 				wallList.push_back(newWall);
 			}
+			else if (reset.getGlobalBounds().contains(mousePos.x, mousePos.y))
+			{
+				if(selectedObject != nullptr)
+				{
+					selectedObject->deselect();
+					selectedObject = nullptr;
+				}
+				if (shootLazars)
+				{
+					shootLazars = false;
+					lazarEnabler.setTexture(&lazarPlayTexture);
+					for (std::list<Object::Lazar*>::iterator lazarIterator = lazarList.begin(); lazarIterator != lazarList.end(); lazarIterator++)
+					{
+
+						delete *lazarIterator;
+					}
+					lazarList.clear();
+				}
+				for(std::list<Object::Wall*>::iterator wallIterator = wallList.begin(); wallIterator != wallList.end(); wallIterator++)
+				{
+					delete *wallIterator;
+				}
+				wallList.clear();
+				lazarGun->deselect();
+				lazarGun->getLazarGun()->setRotation(0);
+				lazarGun->getLazarGun()->setPosition(800, 292);
+			}
 			//if mouse is over a wall - will select the wall "on top" of other walls
 			else
 			{
@@ -301,6 +335,7 @@ int main()
 		window.draw(wallDeleter);
 		window.draw(lazarUI);
 		window.draw(lazarEnabler);
+		window.draw(reset);
 		//if you are moving an object, draw it over the menu so you can move it from the adder and to the deleter
 		if (selectedObject != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
 		{

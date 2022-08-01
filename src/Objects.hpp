@@ -331,10 +331,12 @@ public:
 			{
 				Object::Wall* currentWall = *wallIterator;
 				//each wall has 2 sides
-				for (int i = 0; i < 2; i++)
+				for (int i = 0; i < 4; i++)
 				{
-					int p1 = 2 * i;
-					int p2 = (2 * i) + 1;
+					int p1 = i;
+					int p2 = i + 1;
+					if (p2 > 3)
+						p2 = 0;
 					double x1 = currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(p1)).x;
 					double y1 = currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(p1)).y;
 					double x2 = currentWall->getWall()->getTransform().transformPoint(currentWall->getWall()->getPoint(p2)).x;
@@ -350,12 +352,12 @@ public:
 					if (determinant != 0.00)
 					{
 						double xIntercept = (b2 * c1 - b1 * c2) / determinant;
+						double yIntercept = (a1 * c2 - a2 * c1) / determinant;
 						//checking if possible xIntercept is within bounds of the wall
-						if ((xIntercept <= x1 && xIntercept >= x2) || (xIntercept <= x2 && xIntercept >= x1))
+						if (((xIntercept <= x1 && xIntercept >= x2) || (xIntercept <= x2 && xIntercept >= x1)) && ((yIntercept <= y1 && yIntercept >= y2) || (yIntercept <= y2 && yIntercept >= y1)))
 						{
 
 							//finding the rest of the intercept/reflection location details
-							double yIntercept = (a1 * c2 - a2 * c1) / determinant;
 							double interceptDist = sqrt(pow(this->lazarBeam.getPosition().x - xIntercept, 2) + pow(this->lazarBeam.getPosition().y - yIntercept, 2));
 							//making sure the interception is the right direction
 							bool correctDirection = false;
@@ -406,7 +408,16 @@ public:
 								{
 									//updating temp interception distance
 									minInterceptDist = interceptDist;
-									wallAngle = currentWall->getWall()->getRotation();
+									//if its hitting the short edge
+									if (i % 2 == 1)
+									{
+										wallAngle = currentWall->getWall()->getRotation() + 90;
+									}
+									//if its hitting the long edge
+									else
+									{
+										wallAngle = currentWall->getWall()->getRotation();
+									}
 								}
 							}
 						}
