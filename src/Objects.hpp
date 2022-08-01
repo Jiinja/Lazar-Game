@@ -296,7 +296,8 @@ public:
 		this->lazarBeam.setPosition(x, y);
 		this->lazarBeam.setFillColor(sf::Color::White);
 		this->lazarBeam.setRotation(rotation);
-		this->reflectionCoolDown = 0;
+		this->reflectionCoolDown = false;
+		this->nextReflectionDistance = 1000;
 	}
 
 	/**
@@ -305,27 +306,25 @@ public:
 	 */
 	void update(double timePassed, std::list<Object::Wall*>* wallList)
 	{
-		//updating reflection cooldown each frame
-		this->reflectionCoolDown--;
+		//updating standard movement parameters
 		double nextDistance = (double)this->velocity * timePassed;
 		double nextX = this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * nextDistance;
 		double nextY = this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * nextDistance;
 
-		//these used for reflections later
-		double minX = -1;
-		double minY = -1;
-		double minInterceptDist = minY + minX;
-		int wallAngle = 0;
-
-		//lazar "line" = a1x + b1y = c1
-		double a1 = this->lazarBeam.getPosition().y - nextY;
-		double b1 = nextX - this->lazarBeam.getPosition().x;
-		double c1 = a1 * nextX + b1 * nextY;
-
-		//10 frame reflection cooldown for each lazar
-		if (this->reflectionCoolDown < 1)
+		//if its time to calculate the next reflection
+		if (reflectionCoolDown == false)
 		{
-			//iterating through each wall
+			this->reflectionCoolDown = true;
+			//values used for reflection calculation
+			double minInterceptDist = -1;
+			int wallAngle = 0;
+
+			//lazar "line" = a1x + b1y = c1
+			double a1 = this->lazarBeam.getPosition().y - nextY;
+			double b1 = nextX - this->lazarBeam.getPosition().x;
+			double c1 = a1 * nextX + b1 * nextY;
+
+			//iterating through each wall finding the closest wall on course to intercept/reflect
 			for (std::list<Object::Wall*>::iterator wallIterator = wallList->begin(); wallIterator != wallList->end(); wallIterator++)
 			{
 				Object::Wall* currentWall = *wallIterator;
@@ -352,54 +351,108 @@ public:
 						//checking if possible xIntercept is within bounds of the wall
 						if ((xIntercept <= x1 && xIntercept >= x2) || (xIntercept <= x2 && xIntercept >= x1))
 						{
+							//finding the rest of the intercept/reflection location details
 							double yIntercept = (a1 * c2 - a2 * c1) / determinant;
 							double interceptDist = sqrt(pow(this->lazarBeam.getPosition().x - xIntercept, 2) + pow(this->lazarBeam.getPosition().y - yIntercept, 2));
-							//double nextInterceptDist = sqrt(pow(nextX - xIntercept, 2) + pow(nextY - yIntercept, 2));
-							//checking if the collision should happen and could happen in this frame
-							if (/*nextInterceptDist < interceptDist && */ interceptDist <= nextDistance + 0.1)
+							if(xIntercept - (int)xIntercept > 0.5) xIntercept = (int)xIntercept + 1;
+							if(yIntercept - (int)yIntercept > 0.5) yIntercept = (int)yIntercept + 1;
+							//making sure the interception is the right direction
+							bool correctDirection = false;
+							//lazar moving right
+							if (nextX - this->lazarBeam.getPosition().x >= 0)
 							{
-								//checking if there was a closer interception
-								if (interceptDist < minInterceptDist || minInterceptDist == -2)
+								//lazar moving down
+								if (nextY - this->lazarBeam.getPosition().y >= 0)
 								{
-									//updating reflection variables
-									minInterceptDist = interceptDist;
-									minX = xIntercept;
-									minY = yIntercept;
-									wallAngle = currentWall->getWall()->getRotation();
+									if (xIntercept - this->lazarBeam.getPosition().x >= 0 && yIntercept - this->lazarBeam.getPosition().y >= 0)
+									{
+										correctDirection = true;
+									}
 								}
+								//lazar moving up
+								else
+								{
+									if (xIntercept - this->lazarBeam.getPosition().x >= 0 && yIntercept - this->lazarBeam.getPosition().y < 0)
+									{
+										correctDirection = true;
+									}
+								}
+							}
+							//lazar moving left
+							else
+							{
+								//lazar moving down
+								if (nextY - this->lazarBeam.getPosition().y >= 0)
+								{
+									if (xIntercept - this->lazarBeam.getPosition().x < 0 && yIntercept - this->lazarBeam.getPosition().y >= 0)
+									{
+										correctDirection = true;
+									}
+								}
+								//lazar moving up
+								else
+								{
+									if (xIntercept - this->lazarBeam.getPosition().x < 0 && yIntercept - this->lazarBeam.getPosition().y < 0)
+									{
+										correctDirection = true;
+									}
+								}
+							}
+							//checking if its the correction direction and if a closer reflection/interception was found
+							if (correctDirection && (interceptDist < minInterceptDist || minInterceptDist == -1))
+							{
+								//updating temp interception distance
+								minInterceptDist = interceptDist;
+								wallAngle = currentWall->getWall()->getRotation();
+							}
+							else
+							{
+								std::cout << "WHY!" << std::endl;
 							}
 						}
 					}
 				}
 			}
-			//if an intercept was found
-			if (minInterceptDist != -2)
+			//if and intercept/reflection was found
+			if (minInterceptDist != -1)
 			{
-				//calculating reflection exit angle
-				int newRotation = 0;
+				this->nextReflectionDistance = minInterceptDist;
 				int wallAngle1 = wallAngle;
 				int wallAngle2 = wallAngle1 + 180;
 				if (wallAngle2 > 360)
 					wallAngle2 -= 360;
 				if (abs(wallAngle1 - this->lazarBeam.getRotation()) < abs(wallAngle2 - this->lazarBeam.getRotation()))
 				{
-					newRotation = wallAngle1 + (abs(wallAngle1 - this->lazarBeam.getRotation()));
+					this->nextReflectionAngle = wallAngle1 + (wallAngle1 - this->lazarBeam.getRotation());
 				}
 				else
 				{
-					newRotation = wallAngle2 + (abs(wallAngle2 - this->lazarBeam.getRotation()));
+					this->nextReflectionAngle = wallAngle2 + (wallAngle2 - this->lazarBeam.getRotation());
 				}
-				//moving the lazar to the reflection point & changin angle
-				this->lazarBeam.setRotation(newRotation);
-				this->lazarBeam.setPosition(minX, minY);
-				//moving the rest of the appropriate distance according to velocity, time passed, and distance travelled before the reflection
-				this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * (nextDistance - minInterceptDist), this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * (nextDistance - minInterceptDist));
-				this->reflectionCoolDown = 10;
 			}
+			//otherwise the lazar will continue until off the map
+			else
+			{
+
+				//the play area is 990 pixels at the diagonal so this "next reflection" will never happen
+				this->nextReflectionDistance = 1000;
+			}
+			//calculated next reflection, so no need to do this again until after next reflection
 		}
-		if (!reflectionCoolDown || minInterceptDist == -2)
+		//if the reflection will happen in this frame
+		if (nextDistance >= this->nextReflectionDistance)
 		{
-			this->lazarBeam.setPosition(nextX, nextY);
+			//move lazar to the reflection point
+			this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * this->nextReflectionDistance, this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * this->nextReflectionDistance);
+			//reflect and continue moving the rest of the appropriate distance
+			this->lazarBeam.setRotation(this->nextReflectionAngle);
+			this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * (nextDistance - this->nextReflectionDistance), this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) *  (nextDistance - this->nextReflectionDistance));
+			reflectionCoolDown = false;
+		}
+		else
+		{
+			this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * nextDistance, this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * nextDistance);
+			this->nextReflectionDistance = this->nextReflectionDistance - nextDistance;
 		}
 	}
 
@@ -411,7 +464,9 @@ public:
 private:
 	sf::RectangleShape lazarBeam;
 	int velocity; //pixels/second
-	int reflectionCoolDown;
+	bool reflectionCoolDown;
+	double nextReflectionDistance;
+	int nextReflectionAngle;
 };
 
 }

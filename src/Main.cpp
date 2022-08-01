@@ -164,6 +164,12 @@ int main()
 			}
 			else if (lazarEnabler.getGlobalBounds().contains(mousePos.x, mousePos.y))
 			{
+				if (selectedObject != nullptr)
+				{
+					selectedObject->deselect();
+					selectedObject = nullptr;
+				}
+				lazarGun->deselect();
 				if (shootLazars)
 				{
 					shootLazars = false;
@@ -172,19 +178,13 @@ int main()
 					{
 
 						delete *lazarIterator;
-						lazarList.erase(lazarIterator);
-						lazarIterator--;
 					}
+					lazarList.clear();
 				}
 				else
 				{
 					shootLazars = true;
 					lazarEnabler.setTexture(&lazarPauseTexture);
-					if (selectedObject != nullptr)
-					{
-						selectedObject->deselect();
-						selectedObject = nullptr;
-					}
 				}
 			}
 			//adding a wall if you click on the wall adder
