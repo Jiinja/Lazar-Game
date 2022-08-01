@@ -51,3 +51,5 @@ This game is intended to be a simple sandbox where you can play with lazar beams
 - Pause/play button
   - Hit play to lock all walls in place and begin shooting lazars
   - Hit pause to get rid of lazars and move walls around
+- Reset button
+  - Hit the reset button on the bottom right to reset the game
