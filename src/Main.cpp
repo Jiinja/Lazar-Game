@@ -121,11 +121,11 @@ int main()
 		//if its time for another lazar
 		if (shootLazars)
 		{
-			if (curTime - lastLazar > 0.025)
+			if (curTime - lastLazar > 0.001)
 			{
 				//add a new lazar
 				lastLazar = curTime;
-				Object::Lazar* newLazar = new Object::Lazar(lazarGun->getLazarGun()->getRotation(), lazarGun->getLazarGun()->getPosition().x, lazarGun->getLazarGun()->getPosition().y, 500);
+				Object::Lazar* newLazar = new Object::Lazar(lazarGun->getLazarGun()->getRotation(), lazarGun->getLazarGun()->getPosition().x, lazarGun->getLazarGun()->getPosition().y, 1000);
 				newLazar->getLazar()->setTexture(&lazarBeamTexture);
 				lazarList.insert(lazarList.begin(), newLazar);
 			}
