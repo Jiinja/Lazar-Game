@@ -104,7 +104,7 @@ int main()
 	std::list<Object::Wall*> wallList;
 	Object::LazarGun* lazarGun = new Object::LazarGun(800, 292);
 	lazarGun->getTransformer()->setTexture(&transformerTexture);
-	lazarGun->getLazarGun()->setTexture(&lazarGunTexture);
+	lazarGun->getWall()->setTexture(&lazarGunTexture);
 	bool shootLazars = false;
 
 	while (window.isOpen())
@@ -125,7 +125,7 @@ int main()
 			{
 				//add a new lazar
 				lastLazar = curTime;
-				Object::Lazar* newLazar = new Object::Lazar(lazarGun->getLazarGun()->getRotation(), lazarGun->getLazarGun()->getPosition().x, lazarGun->getLazarGun()->getPosition().y, 1000);
+				Object::Lazar* newLazar = new Object::Lazar(lazarGun->getWall()->getRotation(), lazarGun->getWall()->getPosition().x, lazarGun->getWall()->getPosition().y, 1000);
 				newLazar->getLazar()->setTexture(&lazarBeamTexture);
 				lazarList.insert(lazarList.begin(), newLazar);
 			}
@@ -164,7 +164,7 @@ int main()
 				relativeMousePos = sf::Vector2i(mousePos.x - lazarGun->getTransformer()->getPosition().x, mousePos.y - lazarGun->getTransformer()->getPosition().y);
 			}
 			//if mouse is over the lazarGun
-			else if (lazarGun->getLazarGun()->getGlobalBounds().contains(mousePos.x, mousePos.y))
+			else if (lazarGun->getWall()->getGlobalBounds().contains(mousePos.x, mousePos.y))
 			{
 				if (selectedObject != nullptr)
 				{
@@ -172,7 +172,7 @@ int main()
 					selectedObject = nullptr;
 				}
 				lazarGun->select();
-				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - lazarGun->getLazarGun()->getPosition().x, mouse.getPosition(window).y - lazarGun->getLazarGun()->getPosition().y);
+				relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - lazarGun->getWall()->getPosition().x, mouse.getPosition(window).y - lazarGun->getWall()->getPosition().y);
 			}
 			else if (lazarEnabler.getGlobalBounds().contains(mousePos.x, mousePos.y))
 			{
@@ -241,8 +241,8 @@ int main()
 				}
 				wallList.clear();
 				lazarGun->deselect();
-				lazarGun->getLazarGun()->setRotation(0);
-				lazarGun->getLazarGun()->setPosition(800, 292);
+				lazarGun->getWall()->setRotation(0);
+				lazarGun->getWall()->setPosition(800, 292);
 			}
 			//if mouse is over a wall - will select the wall "on top" of other walls
 			else

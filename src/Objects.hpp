@@ -151,36 +151,26 @@ public:
 		this->selected = 2;
 	}
 
-private:
+protected:
 	int selected;				 //this is updated whenever the object is selected or deselected  0 = no, 1 = selected, 2 = stretch1, 3 = stretch2, 4 = rotater
 	sf::RectangleShape wall;	 //main wall object
 	sf::CircleShape mover;		 //movement object - only drawn while editing
 	sf::CircleShape transformer; //transformation object - only drawn while selected
 };
 
-class LazarGun
+class LazarGun : public Wall
 {
 public:
 	LazarGun(int x = 350, int y = 350)
 	{
 		this->selected = false;
-		this->lazarGun = sf::RectangleShape(sf::Vector2f(36, 24));
-		this->lazarGun.setFillColor(sf::Color::White);
-		this->lazarGun.setOutlineColor(sf::Color::Red);
-		this->lazarGun.setOrigin(18, 12);
+		this->wall = sf::RectangleShape(sf::Vector2f(36, 24));
+		this->wall.setFillColor(sf::Color::White);
+		this->wall.setOutlineColor(sf::Color::Red);
+		this->wall.setOrigin(18, 12);
 		this->transformer = sf::CircleShape(12);
 		this->transformer.setOrigin(12, 12);
-		this->lazarGun.setPosition(x, y);
-	}
-
-	sf::RectangleShape* getLazarGun()
-	{
-		return &this->lazarGun;
-	}
-
-	sf::CircleShape* getTransformer()
-	{
-		return &this->transformer;
+		this->wall.setPosition(x, y);
 	}
 
 	/**
@@ -188,11 +178,11 @@ public:
 	 */
 	void draw(sf::RenderWindow* window)
 	{
-		window->draw(this->lazarGun);
+		window->draw(this->wall);
 		if (selected)
 		{
-			this->transformer.setPosition(this->lazarGun.getPosition().x + (((this->lazarGun.getSize().x / 2) + 20) * cos(this->lazarGun.getRotation() * PI / 180)), this->lazarGun.getPosition().y + (((this->lazarGun.getSize().x / 2) + 20) * sin(this->lazarGun.getRotation() * PI / 180)));
-			this->transformer.setRotation(this->lazarGun.getRotation() + 135);
+			this->transformer.setPosition(this->wall.getPosition().x + (((this->wall.getSize().x / 2) + 20) * cos(this->wall.getRotation() * PI / 180)), this->wall.getPosition().y + (((this->wall.getSize().x / 2) + 20) * sin(this->wall.getRotation() * PI / 180)));
+			this->transformer.setRotation(this->wall.getRotation() + 135);
 			window->draw(transformer);
 		}
 	}
@@ -206,13 +196,13 @@ public:
 		//normal selection -> move object around
 		if (this->selected == 1)
 		{
-			this->lazarGun.setPosition(mouse->x - offset->x, mouse->y - offset->y);
+			this->wall.setPosition(mouse->x - offset->x, mouse->y - offset->y);
 		}
 		//Transform Selection -> rotate object
 		else if (this->selected == 2)
 		{
-			double newRotation = atan((this->lazarGun.getPosition().y - mouse->y) / (this->lazarGun.getPosition().x - mouse->x)) / PI * 180;
-			if (mouse->x - this->lazarGun.getPosition().x <= 0)
+			double newRotation = atan((this->wall.getPosition().y - mouse->y) / (this->wall.getPosition().x - mouse->x)) / PI * 180;
+			if (mouse->x - this->wall.getPosition().x <= 0)
 			{
 				newRotation += 180;
 			}
@@ -220,23 +210,8 @@ public:
 				newRotation -= 360;
 			if (newRotation < 0)
 				newRotation += 360;
-			this->lazarGun.setRotation(newRotation);
+			this->wall.setRotation(newRotation);
 		}
-	}
-
-	/**
-	 * This function is called to ensure the lazargun always remains accessable in the play area
-	 */
-	void fixPos()
-	{
-		if (this->lazarGun.getPosition().x > 900)
-			this->lazarGun.setPosition(900, this->lazarGun.getPosition().y);
-		if (this->lazarGun.getPosition().y > 700)
-			this->lazarGun.setPosition(this->lazarGun.getPosition().x, 700);
-		if (this->lazarGun.getPosition().x < 0)
-			this->lazarGun.setPosition(0, this->lazarGun.getPosition().y);
-		if (this->lazarGun.getPosition().y < 0)
-			this->lazarGun.setPosition(this->lazarGun.getPosition().x, 0);
 	}
 
 	/**
@@ -249,34 +224,12 @@ public:
 	}
 
 	/**
-	 * this function removes the outline and deselects
-	 */
-	void deselect()
-	{
-		this->lazarGun.setOutlineThickness(0);
-		this->selected = 0;
-	}
-
-	/**
-	 * This function updates the selection and lets the move function know that the transformer has been selected
-	 */
-	void selectTransformer()
-	{
-		this->selected = 2;
-	}
-
-	/**
 	 * this function is used to determine the selection state
 	 */
 	bool isSelected()
 	{
 		return this->selected;
 	}
-
-private:
-	int selected;				 //this is updated whenever the object is selected or deselected  0 = no, 1 = selected, 2 = stretch1, 3 = stretch2, 4 = rotater
-	sf::RectangleShape lazarGun; //main wall object
-	sf::CircleShape transformer; //transformation object - only drawn while selected
 };
 
 /**
