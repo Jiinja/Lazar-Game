@@ -152,7 +152,7 @@ int main()
 		if (!lastFrameClick && mouse.isButtonPressed(sf::Mouse::Left))
 		{
 			//if mouse is over rotater of selected object
-			if (!shootLazars && selectedObject != nullptr && selectedObject->getTransformer()->getGlobalBounds().contains(mousePos.x, mousePos.y))
+			if (selectedObject != nullptr && selectedObject->getTransformer()->getGlobalBounds().contains(mousePos.x, mousePos.y))
 			{
 				selectedObject->selectTransformer();
 				relativeMousePos = sf::Vector2i(mousePos.x - selectedObject->getTransformer()->getPosition().x, mousePos.y - selectedObject->getTransformer()->getPosition().y);
@@ -200,7 +200,7 @@ int main()
 				}
 			}
 			//adding a wall if you click on the wall adder
-			else if (!shootLazars && wallAdder.getGlobalBounds().contains(mousePos.x, mousePos.y))
+			else if (wallAdder.getGlobalBounds().contains(mousePos.x, mousePos.y))
 			{
 				//deselecting old object
 				lazarGun->deselect();
@@ -249,39 +249,36 @@ int main()
 			{
 				//deselecting the lazar gun
 				lazarGun->deselect();
-				if (!shootLazars)
+				bool found = false;
+				for (std::list<Object::Wall*>::iterator wallIterator = wallList.end(); wallIterator != wallList.begin();)
 				{
-					bool found = false;
-					for (std::list<Object::Wall*>::iterator wallIterator = wallList.end(); wallIterator != wallList.begin();)
-					{
-						wallIterator--;
-						if ((*wallIterator)->getMover()->getGlobalBounds().contains(mousePos.x, mousePos.y))
-						{
-							if (selectedObject != nullptr)
-							{
-								selectedObject->deselect();
-							}
-							selectedObject = (*wallIterator);
-							selectedObject->select();
-							relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getWall()->getPosition().x, mouse.getPosition(window).y - selectedObject->getWall()->getPosition().y);
-							wallIterator = wallList.begin();
-							found = true;
-						}
-					}
-					if (!found)
+					wallIterator--;
+					if ((*wallIterator)->getMover()->getGlobalBounds().contains(mousePos.x, mousePos.y))
 					{
 						if (selectedObject != nullptr)
 						{
 							selectedObject->deselect();
-							selectedObject = nullptr;
 						}
+						selectedObject = (*wallIterator);
+						selectedObject->select();
+						relativeMousePos = sf::Vector2i(mouse.getPosition(window).x - selectedObject->getWall()->getPosition().x, mouse.getPosition(window).y - selectedObject->getWall()->getPosition().y);
+						wallIterator = wallList.begin();
+						found = true;
+					}
+				}
+				if (!found)
+				{
+					if (selectedObject != nullptr)
+					{
+						selectedObject->deselect();
+						selectedObject = nullptr;
 					}
 				}
 			}
 			lastFrameClick = true;
 		}
 		//if you have a selected object and are clicking
-		if (!shootLazars && selectedObject != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
+		if (/*!shootLazars && */ selectedObject != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
 		{
 			selectedObject->move(&mousePos, &relativeMousePos);
 		}
@@ -290,7 +287,7 @@ int main()
 			lazarGun->move(&mousePos, &relativeMousePos);
 		}
 		//if you just "let go" of object you are moving
-		else if (!shootLazars && selectedObject != nullptr && !mouse.isButtonPressed(sf::Mouse::Left))
+		else if (/*!shootLazars &&*/ selectedObject != nullptr && !mouse.isButtonPressed(sf::Mouse::Left))
 		{
 			//check if it should be deleted
 			if (wallDeleter.getGlobalBounds().contains(selectedObject->getMover()->getPosition().x, selectedObject->getMover()->getPosition().y))
@@ -332,7 +329,7 @@ int main()
 		}
 		for (std::list<Object::Wall*>::iterator wallIterator = wallList.begin(); wallIterator != wallList.end(); wallIterator++)
 		{
-			(*wallIterator)->draw(&window, !shootLazars);
+			(*wallIterator)->draw(&window);
 		}
 		window.draw(menuArea);
 		window.draw(wallAdder);
@@ -343,7 +340,7 @@ int main()
 		//if you are moving an object, draw it over the menu so you can move it from the adder and to the deleter
 		if (selectedObject != nullptr && mouse.isButtonPressed(sf::Mouse::Left))
 		{
-			selectedObject->draw(&window, !shootLazars);
+			selectedObject->draw(&window);
 		}
 		lazarGun->draw(&window);
 		window.display();

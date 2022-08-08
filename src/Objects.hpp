@@ -25,8 +25,8 @@ public:
 		this->wall.setOrigin(50, 12);
 		this->transformer = sf::CircleShape(12);
 		this->transformer.setOrigin(12, 12);
-		this->mover = sf::CircleShape(12);
-		this->mover.setOrigin(12, 12);
+		this->mover = sf::CircleShape(10);
+		this->mover.setOrigin(10, 10);
 		this->wall.setPosition(x, y);
 	}
 
@@ -49,16 +49,12 @@ public:
 	 * This function takes in the window and draws the wall + movement object
 	 * if the wall is selected, draw transformer object that scales to object size
 	 */
-	void draw(sf::RenderWindow* window, bool movable)
+	void draw(sf::RenderWindow* window)
 	{
 		window->draw(this->wall);
-		//if lazars aren't shooting
-		if (movable)
-		{
-			this->mover.setPosition(this->wall.getPosition());
-			this->mover.setRotation(this->wall.getRotation());
-			window->draw(this->mover);
-		}
+		this->mover.setPosition(this->wall.getPosition());
+		this->mover.setRotation(this->wall.getRotation());
+		window->draw(this->mover);
 		//if clicked on / selected
 		if (selected)
 		{
