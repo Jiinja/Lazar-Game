@@ -10,7 +10,7 @@ Download LAZARGAME.zip to play it yourself!
 
 ## Gameplay
 
-### Check out this [Demo Video](https://youtu.be/mOFwntEncUQ)
+### Check out this [Demo Video](https://youtu.be/mkPBiaYUGOY)
 
 ![Lazar Game UI](UIv1.png)
 
@@ -57,3 +57,7 @@ Download LAZARGAME.zip to play it yourself!
   - Hit pause to get rid of lazars
 - Reset button
   - Hit the reset button on the bottom right to reset the game
+
+### Known Issues
+
+- Lazars sometimes phase through straight vertical/horizontal walls
