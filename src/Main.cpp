@@ -130,20 +130,22 @@ int main()
 				lazarList.insert(lazarList.begin(), newLazar);
 			}
 			//iterating through each lazar
-			for (std::list<Object::Lazar*>::iterator lazarIterator = lazarList.begin(); lazarIterator != lazarList.end(); lazarIterator++)
+			std::list<Object::Lazar*>::iterator lazarIterator = lazarList.begin();
+			while (lazarIterator != lazarList.end())
 			{
 				//checking if each lazar is in bounds
 				if ((*lazarIterator)->getLazar()->getPosition().x > 725 || (*lazarIterator)->getLazar()->getPosition().y > 725 || (*lazarIterator)->getLazar()->getPosition().x < -25 || (*lazarIterator)->getLazar()->getPosition().y < -25)
 				{
-					//if out of bounds, delete lazar, move iterator back, and continue loop
-					delete *lazarIterator;
-					lazarList.erase(lazarIterator);
-					lazarIterator--;
+					//if out of bounds, move iterator forwards and delete previous lazar
+					Object::Lazar* temp = *lazarIterator;
+					lazarList.erase(lazarIterator++);
+					delete temp;
 				}
 				else
 				{
 					//if lazar is in bounds
 					(*lazarIterator)->update(curTime - lastTime, &wallList);
+					lazarIterator++;
 				}
 			}
 		}
@@ -188,7 +190,6 @@ int main()
 					lazarEnabler.setTexture(&lazarPlayTexture);
 					for (std::list<Object::Lazar*>::iterator lazarIterator = lazarList.begin(); lazarIterator != lazarList.end(); lazarIterator++)
 					{
-
 						delete *lazarIterator;
 					}
 					lazarList.clear();
@@ -230,7 +231,6 @@ int main()
 					lazarEnabler.setTexture(&lazarPlayTexture);
 					for (std::list<Object::Lazar*>::iterator lazarIterator = lazarList.begin(); lazarIterator != lazarList.end(); lazarIterator++)
 					{
-
 						delete *lazarIterator;
 					}
 					lazarList.clear();

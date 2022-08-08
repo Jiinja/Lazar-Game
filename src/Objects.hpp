@@ -258,6 +258,7 @@ public:
 	{
 		//updating standard movement parameters
 		double nextDistance = (double)this->velocity * timePassed;
+		int maxReflections = 10;
 
 		while (nextDistance != 0)
 		{
@@ -267,7 +268,7 @@ public:
 				calculateReflection(wallList);
 			}
 			//if the reflection will happen in this frame
-			if (this->nextReflectionDistance <= nextDistance)
+			if (maxReflections > 0 && this->nextReflectionDistance <= nextDistance)
 			{
 				//move lazar to the reflection point & update angle
 				this->lazarBeam.setPosition(this->lazarBeam.getPosition().x + cos(this->lazarBeam.getRotation() * PI / 180) * this->nextReflectionDistance, this->lazarBeam.getPosition().y + sin(this->lazarBeam.getRotation() * PI / 180) * this->nextReflectionDistance);
@@ -275,6 +276,7 @@ public:
 				//updating distance travelled
 				nextDistance -= this->nextReflectionDistance;
 				reflectionReady = false;
+				maxReflections--;
 			}
 			else
 			{
@@ -351,6 +353,7 @@ private:
 							{
 								//checking if a closer reflection was found
 								double interceptDist = sqrt(pow(this->lazarBeam.getPosition().x - xIntercept, 2) + pow(this->lazarBeam.getPosition().y - yIntercept, 2));
+								std::cout << interceptDist << std::endl;
 								if (interceptDist < minInterceptDist)
 								{
 									//updating temp interception distance

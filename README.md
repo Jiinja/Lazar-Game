@@ -17,12 +17,12 @@ Download LAZARGAME.zip to play it yourself!
 ### About the game
 
 - Click on the large green box to add as many walls as you want
-- Drag and drop walls anywhere on the play area using the small blue circles before pressing play
+- Drag and drop walls anywhere on the play area using the small blue circles
 - Drag and drop walls onto the large red box to delete them
 - Drag and drop the Lazar Gun at any time to any location
 - Click on the smaller red circles after clicking on an object to rotate and/or resize
-- Press the blue play button to lock the walls in place and begin shooting lazars from the lazar gun
-- Press the blue pause button to delete all lazars and move walls around again
+- Press the blue play button to begin shooting lazars from the lazar gun
+- Press the blue pause button to stop shooting lazars and delete all lazars
 - Press the small white X button on the bottom right to reset everything
 
 ## Features
@@ -46,13 +46,14 @@ Download LAZARGAME.zip to play it yourself!
   - Lazar gun object can be moved around and rotated
   - Lazars reflect off all sides of walls
   - Custom texture for the lazar beam
+  - Note: reflections are calculated when lazars are shot and/or reflecting off surfaces so when moving walls they can act a bit weird
 - Lazar Gun
   - The lazar gun spawns in the grey area under "Lazar Gun"
   - Always able to be moved and rotated
   - Custom texture
   - Always stays inside the screen bounds
 - Pause/play button
-  - Hit play to lock all walls in place and begin shooting lazars
-  - Hit pause to get rid of lazars and move walls around
+  - Hit play tobegin shooting lazars
+  - Hit pause to get rid of lazars
 - Reset button
   - Hit the reset button on the bottom right to reset the game
